@@ -55,9 +55,28 @@ def parse(bot_id, events):
     return map(remove_user_id, filter(at_bot(bot_id), messages(events)))
 
 
+def add(command):
+    numeric = "[-+]?[0-9]*\.?[0-9]+"
+    pattern = \
+        "!add (\[(?:{numeric},\s*)+{numeric}\])".format(**{"numeric": numeric})
+    try:
+        return \
+            pipe( search(pattern, command)
+                , lambda xs: xs.group(1)
+                , eval
+                , sum
+                , lambda x: round(x, 2)
+                , str
+                )
+    except:
+        return "That didn't work. Try *!add [1, 2, 3]*."
+
+
 def response(command):
     placeholder = "do"
-    if command.startswith(placeholder):
+    if command.startswith("!add"):
+        return add(command)
+    elif command.startswith(placeholder):
         return "Hmm, don't think I can *do* that!"
     else:
         return "Not sure what you mean. Try *{}*.".format(placeholder)
