@@ -58,7 +58,7 @@ def parse(bot_id, events):
 def add(command):
     numeric = "[-+]?[0-9]*\.?[0-9]+"
     pattern = \
-        "!add (\[(?:{numeric},\s*)+{numeric}\])".format(**{"numeric": numeric})
+        "!sum (\[(?:{numeric},\s*)+{numeric}\])".format(**{"numeric": numeric})
     try:
         return \
             pipe( search(pattern, command)
@@ -74,7 +74,7 @@ def add(command):
 
 def response(command):
     placeholder = "do"
-    if command.startswith("!add"):
+    if command.startswith("!sum"):
         return add(command)
     elif command.startswith(placeholder):
         return "Hmm, don't think I can *do* that!"
