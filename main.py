@@ -3,6 +3,7 @@
 
 from os import environ
 from time import sleep
+from pprint import pprint
 from re import search
 
 from slackclient import SlackClient
@@ -12,15 +13,29 @@ def map_(f, xs):
     return list(map(f, xs))
 
 
+def pipe(x, *fs):
+    for f in fs:
+        x = f(x)
+
+    return x
+
+
 def valid_message(event):
     return (event["type"] == "message") & ("subtype" not in event)
 
 
+def split_text(event):
+    pprint(event)
+    try:
+        text = event["text"]
+        matches = search("^<@(|[WU].+?)>(.*)", text)
+        return (matches.group(1), matches.group(2).strip(), event["channel"])
+    except AttributeError:
+        return (None, None, None)
+
+
 def messages(events):
-    return \
-        map( lambda event: (*split_text(event["text"]), event["channel"])
-           , filter(valid_message, events)
-           )
+    return map(split_text, filter(valid_message, events))
 
 
 def at_bot(bot_id):
@@ -40,11 +55,6 @@ def parse(bot_id, events):
     return map(remove_user_id, filter(at_bot(bot_id), messages(events)))
 
 
-def split_text(text):
-    matches = search("^<@(|[WU].+?)>(.*)", text)
-    return (matches.group(1), matches.group(2).strip())
-
-
 def response(command):
     placeholder = "do"
     if command.startswith(placeholder):
@@ -54,11 +64,20 @@ def response(command):
 
 
 def send(slack_client, command, channel):
-    slack_client.api_call( "chat.postMessage"
-                         , channel=channel
-                         , text=response(command)
-                         )
     sleep(0.1)
+    return \
+        slack_client.api_call( "chat.postMessage"
+                             , channel=channel
+                             , text=response(command)
+                             )
+
+
+def pipeline(slack_client, command):
+    return \
+        pipe( command
+            , lambda command: send(slack_client, *command)
+            , pprint
+            )
 
 
 def death(bot_name):
@@ -69,8 +88,8 @@ def death(bot_name):
 
 
 def main():
+    bot_name = None
     try:
-        bot_name = None
         slack_client = SlackClient(environ["SLACK_BOT_TOKEN"])
         if slack_client.rtm_connect(with_team_state=False):
             bot_creds = slack_client.api_call("auth.test")
@@ -79,7 +98,7 @@ def main():
             print("{} is alive!".format(bot_name))
             while True:
                 commands = parse(bot_id, slack_client.rtm_read())
-                map_(lambda command: send(slack_client, *command), commands)
+                map_(lambda command: pipeline(slack_client, command), commands)
                 sleep(1)
         else:
             print("Unable to connect.")
