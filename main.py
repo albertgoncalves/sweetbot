@@ -55,7 +55,7 @@ def parse(bot_id, events):
     return map(remove_user_id, filter(at_bot(bot_id), messages(events)))
 
 
-def add(command):
+def sum_(command):
     numeric = "[-+]?[0-9]*\.?[0-9]+"
     pattern = \
         "!sum (\[(?:{numeric},\s*)+{numeric}\])".format(**{"numeric": numeric})
@@ -66,20 +66,18 @@ def add(command):
                 , eval
                 , sum
                 , lambda x: round(x, 2)
-                , str
+                , lambda x: "*{}*".format(x)
                 )
     except:
-        return "That didn't work. Try *!add [1, 2, 3]*."
+        return "That didn't work. Try *!sum [1, 2, 3]*."
 
 
 def response(command):
-    placeholder = "do"
-    if command.startswith("!sum"):
-        return add(command)
-    elif command.startswith(placeholder):
-        return "Hmm, don't think I can *do* that!"
+    headers = {"sum": "!sum"}
+    if command.startswith(headers["sum"]):
+        return sum_(command)
     else:
-        return "Not sure what you mean. Try *{}*.".format(placeholder)
+        return "Not sure what you mean. Try *{}*.".format(headers["sum"])
 
 
 def send(slack_client, command, channel):
@@ -91,12 +89,14 @@ def send(slack_client, command, channel):
                              )
 
 
-def pipeline(slack_client, command):
-    return \
-        pipe( command
-            , lambda command: send(slack_client, *command)
-            , pprint
-            )
+def loop(slack_client, commands):
+    def f(command):
+        return \
+            pipe( command
+                , lambda command: send(slack_client, *command)
+                , pprint
+                )
+    return map_(f, commands)
 
 
 def death(bot_name):
@@ -116,8 +116,7 @@ def main():
             bot_id = bot_creds["user_id"]
             print("{} is alive!".format(bot_name))
             while True:
-                commands = parse(bot_id, slack_client.rtm_read())
-                map_(lambda command: pipeline(slack_client, command), commands)
+                loop(slack_client, parse(bot_id, slack_client.rtm_read()))
                 sleep(1)
         else:
             print("Unable to connect.")
