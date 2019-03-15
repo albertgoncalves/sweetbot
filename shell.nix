@@ -6,6 +6,7 @@ with pkgs; mkShell {
                           statsmodels
                           numpy
                           flake8
+                          pytest
                         ]
                     ))
                   ];
