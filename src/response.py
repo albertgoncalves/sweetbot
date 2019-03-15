@@ -75,7 +75,13 @@ def std_(command):
 
 
 def dashboard(_):
-    return "Here it is!\nhttp://data-dashboards.sumall.net/sku_metrics/"
+    message = \
+        [ "The three favorite children:"
+        , "http://data-dashboards.sumall.net/sku_metrics/"
+        , "http://data-dashboards.sumall.net/adjusted_orders/"
+        , "http://data-dashboards.sumall.net/bin_viewer/"
+        ]
+    return newlines(message)
 
 
 def clock(_):
@@ -156,6 +162,7 @@ def options(_):
         , " `{} median(-1, 2, 10000)`"
         , " `{} mode(1, 1, 1, 1.01)`"
         , " `{} sd(-10, 0, 10, 11)`"
+        , " `{} lm([1, 1, 1, 2], [5, 5, 6, 8])`"
         , " `{} time`"
         , " `{} dashboard`"
         , " `{} alive`"
