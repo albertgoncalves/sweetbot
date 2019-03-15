@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from os import environ
 from time import sleep
 from pprint import pprint
 from re import search
 
+from scipy.stats import linregress
+from numpy import std
+
 from slackclient import SlackClient
+
+NUMERIC = "[-+]?[0-9]*\.?[0-9]+"
+LIST = "((?:{}\s*,\s*)+{})"
 
 
 def map_(f, xs):
@@ -18,6 +25,10 @@ def pipe(x, *fs):
         x = f(x)
 
     return x
+
+
+def inject(container, pattern):
+    return container.replace("{}", "{pattern}").format(**{"pattern": pattern})
 
 
 def valid_message(event):
@@ -55,29 +66,94 @@ def parse(bot_id, events):
     return map(remove_user_id, filter(at_bot(bot_id), messages(events)))
 
 
-def sum_(command):
-    numeric = "[-+]?[0-9]*\.?[0-9]+"
-    pattern = \
-        "!sum (\[(?:{numeric},\s*)+{numeric}\])".format(**{"numeric": numeric})
-    try:
+def eval_list(command, pattern):
+    return \
+        pipe( search(pattern, command)
+            , lambda xs: xs.group(1)
+            , eval
+            , list
+            )
+
+
+def crush(func):
+    def f(xs):
         return \
-            pipe( search(pattern, command)
-                , lambda xs: xs.group(1)
-                , eval
-                , sum
-                , lambda x: round(x, 2)
-                , lambda x: "*{}*".format(x)
+            pipe( xs
+                , func
+                , lambda x: round(x, 10)
+                , lambda x: "{}".format(x)
+                )
+
+    return f
+
+
+def link(command):
+    return "Here it is!\nhttp://data-dashboards.sumall.net/sku_metrics/"
+
+
+def sum_(command):
+    try:
+        args = (LIST, NUMERIC)
+        return \
+            pipe( eval_list(command, "sum\s*\(\s{}\s\)".format(inject(*args)))
+                , crush(sum)
                 )
     except:
-        return "That didn't work. Try *!sum [1, 2, 3]*."
+        return "That didn't work.\nTry `sum(1, 2, 3.01)`"
+
+
+def sd(command):
+    try:
+        args = (LIST, NUMERIC)
+        return \
+            pipe( eval_list(command, "sd\s*\(\s{}\s\)".format(inject(*args)))
+                , crush(std)
+                )
+    except:
+        return "No dice!\nTry `sd(-1, 0.01, 1)`"
+
+
+def now(command):
+    utcnow = datetime.utcnow().strftime("%I:%M:%S %p")
+    return "Current time UTC\n`{}`".format(utcnow)
+
+
+def lm(command):
+    try:
+        pattern = \
+            inject( "lm\(\s*\[\s*{}\s*\]\s*,\s*\[\s*{}\s*\]\s*\)"
+                  , inject(LIST, NUMERIC)
+                  )
+
+        xy = search(pattern, command)
+        m, b, r, p, _ = \
+            linregress(*map(lambda i: list(eval(xy.group(i))), [1, 2]))
+
+        output = \
+            [ "slope: {}"
+            , "intercept: {}"
+            , "r-squared: {}"
+            , "p-value: {}"
+            ]
+
+        return "\n".join(output).format(m, b, r ** 2, p)
+    except:
+        return "Wrong way.\nTry `lm([1, 2, 3], [3, 2, 1])`"
 
 
 def response(command):
-    headers = {"sum": "!sum"}
-    if command.startswith(headers["sum"]):
+    if command.startswith("sum"):
         return sum_(command)
+    elif command.startswith("sd"):
+        return sd(command)
+    elif command.startswith("dashboard"):
+        return link(command)
+    elif command.startswith("utc"):
+        return now(command)
+    elif command.startswith("lm"):
+        return lm(command)
     else:
-        return "Not sure what you mean. Try *{}*.".format(headers["sum"])
+        return "Not sure what you mean."
 
 
 def send(slack_client, command, channel):

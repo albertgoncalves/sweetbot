@@ -3,6 +3,8 @@ with pkgs; mkShell {
     name = "Python";
     buildInputs = [ (python36.withPackages(ps: with ps;
                         [ slackclient
+                          statsmodels
+                          numpy
                           flake8
                         ]
                     ))
