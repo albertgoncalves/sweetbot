@@ -8,12 +8,13 @@ from statistics import mean, median, mode
 from scipy.stats import linregress
 from numpy import std
 
-from utils import block, inject, newlines, pipe, remove_whitespace, spaces
+from utils import block, check_float, inject, newlines, pipe, \
+    remove_whitespace, spaces, string_to_floats
 
-NUMERIC = r"[-+]?[0-9]*\.?[0-9]+"
-LIST = r"((?:{}\s*,\s*)+{})"
-VARIADIC = r"\s*\(\s*{}\s*\)"
 BOT_NAME = "@sweetbot"
+LIST = r"((?:{}\s*,\s*)+{})"
+NUMERIC = r"[-+]?[0-9]*\.?[0-9]+"
+VARIADIC = r"\s*\(\s*{}\s*\)"
 
 
 def eval_list_with(f, command, pattern, message):
@@ -22,11 +23,11 @@ def eval_list_with(f, command, pattern, message):
             pipe( (pattern + VARIADIC).format(inject(LIST, NUMERIC))
                 , lambda pattern: search(pattern, command)
                 , lambda xs: xs.group(1)
-                , eval
-                , list
+                , string_to_floats
                 , f
                 , lambda x: round(x, 10)
-                , lambda x: "{}".format(x)
+                , check_float
+                , str
                 )
         return \
             block("{} = {}".format(remove_whitespace(command), result))
@@ -103,7 +104,9 @@ def lm(command):
                   )
         xy = search(pattern, command)
         m, b, r, p, _ = \
-            linregress(*map(lambda i: list(eval(xy.group(i))), [1, 2]))
+            linregress(*map( lambda i: list(string_to_floats(xy.group(i)))
+                           , [1, 2]
+                           ))
         output = \
             [ "{} = ".format(remove_whitespace(command))
             , "    slope     : {:8.9f}"

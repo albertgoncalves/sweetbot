@@ -31,3 +31,15 @@ def newlines(strings):
 
 def spaces(strings):
     return " ".join(strings)
+
+
+def string_to_floats(string):
+    return map(float, string.replace(",", "").split())
+
+
+def check_float(x):
+    int_x = int(x)
+    if float(int_x) == x:
+        return int_x
+    else:
+        return x
