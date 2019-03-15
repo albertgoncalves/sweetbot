@@ -23,3 +23,11 @@ def block(string):
 
 def inject(container, pattern):
     return container.replace("{}", "{pattern}").format(**{"pattern": pattern})
+
+
+def newlines(strings):
+    return "\n".join(strings)
+
+
+def spaces(strings):
+    return " ".join(strings)
