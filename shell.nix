@@ -15,7 +15,7 @@ with pkgs; mkShell {
             alias ll='ls -al'
         fi
 
-        alias flake8="flake8 --ignore E124,E128,E201,E203,E241,E402,W503"
+        alias flake8="flake8 --ignore E124,E128,E201,E203,E241,E402,W503,E722"
         alias python="env $(cat .env | xargs) python"
     '';
 }

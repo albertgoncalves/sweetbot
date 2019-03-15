@@ -6,14 +6,15 @@ from os import environ
 from time import sleep
 from pprint import pprint
 from re import search
+from statistics import mean, median, mode
 
 from scipy.stats import linregress
 from numpy import std
 
 from slackclient import SlackClient
 
-NUMERIC = "[-+]?[0-9]*\.?[0-9]+"
-LIST = "((?:{}\s*,\s*)+{})"
+NUMERIC = r"[-+]?[0-9]*\.?[0-9]+"
+LIST = r"((?:{}\s*,\s*)+{})"
 
 
 def map_(f, xs):
@@ -25,6 +26,10 @@ def pipe(x, *fs):
         x = f(x)
 
     return x
+
+
+def three_dashes(string):
+    return "```{}```".format(string)
 
 
 def inject(container, pattern):
@@ -39,7 +44,7 @@ def split_text(event):
     pprint(event)
     try:
         text = event["text"]
-        matches = search("^<@(|[WU].+?)>(.*)", text)
+        matches = search(r"^<@(|[WU].+?)>(.*)", text)
         return (matches.group(1), matches.group(2).strip(), event["channel"])
     except AttributeError:
         return (None, None, None)
@@ -75,42 +80,70 @@ def eval_list(command, pattern):
             )
 
 
-def crush(func):
-    def f(xs):
-        return \
-            pipe( xs
-                , func
-                , lambda x: round(x, 10)
-                , lambda x: "{}".format(x)
-                )
-
-    return f
-
-
 def link(command):
     return "Here it is!\nhttp://data-dashboards.sumall.net/sku_metrics/"
 
 
+def shrink(command):
+    return command.replace(" ", "")
+
+
+def transform_list(command, pattern, func, message):
+    try:
+        result = \
+            pipe( eval_list(command, pattern.format(inject(LIST, NUMERIC)))
+                , func
+                , lambda x: round(x, 10)
+                , lambda x: "{}".format(x)
+                )
+        return three_dashes("{} = {}".format(shrink(command), result))
+    except:
+        return message
+
+
 def sum_(command):
-    try:
-        args = (LIST, NUMERIC)
-        return \
-            pipe( eval_list(command, "sum\s*\(\s{}\s\)".format(inject(*args)))
-                , crush(sum)
-                )
-    except:
-        return "That didn't work.\nTry `sum(1, 2, 3.01)`"
+    return \
+        transform_list( command
+                      , r"sum\s*\(\s*{}\s*\)"
+                      , sum
+                      , "That didn't work.\nTry `sum(1, 2, 3.01)`"
+                      )
 
 
-def sd(command):
-    try:
-        args = (LIST, NUMERIC)
-        return \
-            pipe( eval_list(command, "sd\s*\(\s{}\s\)".format(inject(*args)))
-                , crush(std)
-                )
-    except:
-        return "No dice!\nTry `sd(-1, 0.01, 1)`"
+def std_(command):
+    return \
+        transform_list( command
+                      , r"sd\s*\(\s*{}\s*\)"
+                      , std
+                      , "No dice!\nTry `sd(-1, 0.01, 1)`"
+                      )
+
+
+def mode_(command):
+    return \
+        transform_list( command
+                      , r"mode\s*\(\s*{}\s*\)"
+                      , mode
+                      , "There may be *no* mode.\nTry `mode(1, 1, 1, 0, 0)`"
+                      )
+
+
+def mean_(command):
+    return \
+        transform_list( command
+                      , r"mean\s*\(\s*{}\s*\)"
+                      , mean
+                      , "I don't understand.\nTry `mean(10, 11, 11.01)`"
+                      )
+
+
+def median_(command):
+    return \
+        transform_list( command
+                      , r"median\s*\(\s*{}\s*\)"
+                      , median
+                      , "You can say that again.\nTry `median(10, 11, 1000)`"
+                      )
 
 
 def now(command):
@@ -121,7 +154,7 @@ def now(command):
 def lm(command):
     try:
         pattern = \
-            inject( "lm\(\s*\[\s*{}\s*\]\s*,\s*\[\s*{}\s*\]\s*\)"
+            inject( r"lm\(\s*\[\s*{}\s*\]\s*,\s*\[\s*{}\s*\]\s*\)"
                   , inject(LIST, NUMERIC)
                   )
 
@@ -130,13 +163,14 @@ def lm(command):
             linregress(*map(lambda i: list(eval(xy.group(i))), [1, 2]))
 
         output = \
-            [ "slope: {}"
-            , "intercept: {}"
-            , "r-squared: {}"
-            , "p-value: {}"
+            [ "{} = ".format(shrink(command))
+            , "    slope     : {:8.4f}"
+            , "    intercept : {:8.4f}"
+            , "    r-squared : {:8.4f}"
+            , "    p-value   : {:8.4f}"
             ]
 
-        return "\n".join(output).format(m, b, r ** 2, p)
+        return three_dashes("\n".join(output).format(m, b, r ** 2, p))
     except:
         return "Wrong way.\nTry `lm([1, 2, 3], [3, 2, 1])`"
 
@@ -145,7 +179,13 @@ def response(command):
     if command.startswith("sum"):
         return sum_(command)
     elif command.startswith("sd"):
-        return sd(command)
+        return std_(command)
+    elif command.startswith("mode"):
+        return mode_(command)
+    elif command.startswith("mean"):
+        return mean_(command)
+    elif command.startswith("median"):
+        return median_(command)
     elif command.startswith("dashboard"):
         return link(command)
     elif command.startswith("utc"):
