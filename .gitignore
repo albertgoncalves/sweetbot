@@ -1,5 +1,6 @@
 *
 !.gitignore
 !*.py
+!*.sh
 !shell.nix
 !src/
