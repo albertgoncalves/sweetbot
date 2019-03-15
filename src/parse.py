@@ -11,11 +11,11 @@ def valid_message(event):
 
 
 def split_text(event):
-    try:
-        text = event["text"]
-        results = search(MESSAGE, text)
+    text = event["text"]
+    results = search(MESSAGE, text)
+    if results:
         return (results.group(1), results.group(2).strip(), event["channel"])
-    except AttributeError:
+    else:
         return (None, None, None)
 
 
