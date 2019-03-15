@@ -12,20 +12,22 @@ from parse import parse
 from utils import map_, pipe
 
 
-def send(slack_client, command, channel):
-    sleep(0.1)
-    return \
-        slack_client.api_call( "chat.postMessage"
-                             , channel=channel
-                             , text=response(command)
-                             )
+def send(slack_client):
+    def f(packet):
+        command, channel = packet
+        sleep(0.1)
+        return slack_client.api_call( "chat.postMessage"
+                                    , channel=channel
+                                    , text=response(command)
+                                    )
+    return f
 
 
 def loop(slack_client, commands):
-    def f(command):
+    def f(packet):
         return \
-            pipe( command
-                , lambda command: send(slack_client, *command)
+            pipe( packet
+                , send(slack_client)
                 , pprint
                 )
     return map_(f, commands)

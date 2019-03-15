@@ -27,7 +27,6 @@ def at_bot(bot_id):
     def f(event):
         user_id, _, _ = event
         return user_id == bot_id
-
     return f
 
 

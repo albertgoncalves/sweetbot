@@ -15,3 +15,11 @@ def pipe(x, *fs):
 
 def remove_whitespace(command):
     return command.replace(" ", "")
+
+
+def block(string):
+    return "```{}```".format(string)
+
+
+def inject(container, pattern):
+    return container.replace("{}", "{pattern}").format(**{"pattern": pattern})
