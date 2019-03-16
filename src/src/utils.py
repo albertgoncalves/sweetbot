@@ -41,4 +41,4 @@ def spaces(strings):
 
 
 def string_to_floats(string):
-    return map(float, string.replace(",", "").split())
+    return map(float, string.replace(" ", "").split(","))
