@@ -36,10 +36,12 @@ def test_messages():
         [("UXXXXXXXX", "foo bar", "XXXXXXXXX"), (None, None, None)]
 
 
-def test_at_bot():
-    at_thisbot = at_bot(BOT_ID)
-    assert at_thisbot((BOT_ID, None, None))
-    assert not at_thisbot(("@that_bot", None, None))
+class TestAtBot(object):
+    def test_same_bot(self):
+        assert at_bot(BOT_ID)((BOT_ID, None, None))
+
+    def test_different_bots(self):
+        assert not at_bot(BOT_ID)(("@that_bot", None, None))
 
 
 def test_remove_user_id():

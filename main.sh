@@ -14,4 +14,3 @@ main () {
 export -f main
 
 nix-shell --run "main"
-

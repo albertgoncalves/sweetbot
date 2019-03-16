@@ -12,9 +12,12 @@ class TestCheckFloat(object):
         assert check_float(4.1) == 4.1
 
 
-def test_inject():
-    assert inject("{}{}", "foobar") == "foobarfoobar"
-    assert inject("foo", "bar") == "foo"
+class TestInject(object):
+    def test_two(self):
+        assert inject("{}{}", "foobar") == "foobarfoobar"
+
+    def test_zero(self):
+        assert inject("foo", "bar") == "foo"
 
 
 def test_map_():
