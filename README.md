@@ -20,7 +20,7 @@ $ nix-shell
 [nix-shell:~/sweetbot]$ pytest
 [nix-shell:~/sweetbot]$ env $(cat .env | xargs) python src/main.py
 ```
-`python` and `pytest` will both generate their own cache directories after they're first run; if you'd like to submit these directories to the purge:
+`python` and `pytest` will both generate their own cache directories; it can get a little messy. If you'd like to submit these directories to the purge:
 ```
 $ nix-shell
 [nix-shell:~/sweetbot]$ bash clean.sh
