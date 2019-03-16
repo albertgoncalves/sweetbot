@@ -9,9 +9,9 @@ flake8_ignore () {
     flake8 --ignore "E124,E128,E201,E203,E241,E402,W503,E722"
 }
 
-python_creds () {
-    env $(cat .env | xargs) python $1
+python_with () {
+    env $(cat $1 | xargs) python $2
 }
 
 export -f flake8_ignore
-export -f python_creds
+export -f python_with

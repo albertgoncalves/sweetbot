@@ -2,13 +2,11 @@
 
 main () {
     set -e
-    for f in */*py; do flake8_ignore $f; done
-    cd test/
+    for f in */*py; do
+        flake8_ignore $f
+    done
     pytest
-    if (( $? == 0 )); then
-        cd ../
-        python_creds main.py
-    fi
+    python_with .env main.py
 }
 
 export -f main

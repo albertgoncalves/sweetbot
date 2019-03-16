@@ -12,6 +12,6 @@ with pkgs; mkShell {
                     ))
                   ];
     shellHook = ''
-        . alias.sh
+        . .alias
     '';
 }
