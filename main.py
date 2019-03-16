@@ -7,9 +7,9 @@ from pprint import pformat
 
 from slackclient import SlackClient
 
-from response import response
-from parse import parse
-from utils import map_, newlines, pipe
+from src.response import response
+from src.parse import parse
+from src.utils import map_, newlines, pipe
 
 
 def send(slack_client):

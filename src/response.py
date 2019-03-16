@@ -7,8 +7,9 @@ from statistics import mean, median, mode
 
 from scipy.stats import linregress
 from numpy import std
+from pytz import utc
 
-from utils import block, check_float, inject, newlines, pipe, \
+from .utils import block, check_float, inject, newlines, pipe, \
     remove_whitespace, spaces, string_to_floats
 
 BOT_NAME = "@sweetbot"
@@ -85,15 +86,17 @@ def dashboard(_):
     return newlines(message)
 
 
-def clock(_):
-    timestamp = "%I:%M:%S %p"
-    now = datetime.now().strftime(timestamp)
-    now_utc = datetime.utcnow().strftime(timestamp)
-    results = \
-        [ "here : {}"
-        , "utc  : {}"
-        ]
-    return block(newlines(results).format(now, now_utc))
+def clock(now_here):
+    def f(_):
+        timestamp = "%I:%M:%S %p"
+        now_utc = now_here.astimezone(utc)
+        results = \
+            [ "here : {}"
+            , "utc  : {}"
+            ]
+        nows = map(lambda now: now.strftime(timestamp), [now_here, now_utc])
+        return block(newlines(results).format(*nows))
+    return f
 
 
 def lm(command):
@@ -186,7 +189,7 @@ def response(command):
         , "mode": mode_
         , "sd": std_
         , "dashboard": dashboard
-        , "time": clock
+        , "time": clock(datetime.now())
         , "lm": lm
         , "alive": alive
         , "dreams": dreams

@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
 main () {
+    set -e
+    for f in */*py; do flake8_ignore $f; done
     cd test/
-    pytest test.py
+    pytest
     if (( $? == 0 )); then
-        cd ../src/
-        env $(cat ../.env | xargs) python main.py
+        cd ../
+        python_creds main.py
     fi
-    cd ../
 }
 
 export -f main
 
 nix-shell --run "main"
+

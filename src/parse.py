@@ -19,10 +19,6 @@ def split_text(event):
         return (None, None, None)
 
 
-def messages(events):
-    return map(split_text, filter(valid_message, events))
-
-
 def at_bot(bot_id):
     def f(event):
         user_id, _, _ = event
@@ -33,6 +29,10 @@ def at_bot(bot_id):
 def remove_user_id(event):
     _, message, channel = event
     return (message, channel)
+
+
+def messages(events):
+    return map(split_text, filter(valid_message, events))
 
 
 def parse(bot_id, events):

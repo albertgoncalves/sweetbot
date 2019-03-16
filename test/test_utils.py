@@ -22,7 +22,9 @@ def test_map_():
 
 
 def test_pipe():
-    assert pipe(1.5, int, float, type) == type(float(int(1.5)))
+    x = 10.5
+    y = 2
+    assert pipe(x, int, float, lambda x: x / y) == (float(int(x))) / y
 
 
 def test_string_to_floats():
