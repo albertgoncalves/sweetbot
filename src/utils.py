@@ -2,39 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-def map_(f, xs):
-    return list(map(f, xs))
-
-
-def pipe(x, *fs):
-    for f in fs:
-        x = f(x)
-
-    return x
-
-
-def remove_whitespace(command):
-    return command.replace(" ", "")
-
-
 def block(string):
     return "```{}```".format(string)
-
-
-def inject(container, pattern):
-    return container.replace("{}", "{pattern}").format(**{"pattern": pattern})
-
-
-def newlines(strings):
-    return "\n".join(strings)
-
-
-def spaces(strings):
-    return " ".join(strings)
-
-
-def string_to_floats(string):
-    return map(float, string.replace(",", "").split())
 
 
 def check_float(x):
@@ -43,3 +12,33 @@ def check_float(x):
         return int_x
     else:
         return x
+
+
+def inject(container, pattern):
+    return container.replace("{}", "{pattern}").format(**{"pattern": pattern})
+
+
+def map_(f, xs):
+    return list(map(f, xs))
+
+
+def remove_whitespace(string):
+    return string.replace(" ", "")
+
+
+def newlines(strings):
+    return "\n".join(strings)
+
+
+def pipe(x, *fs):
+    for f in fs:
+        x = f(x)
+    return x
+
+
+def spaces(strings):
+    return " ".join(strings)
+
+
+def string_to_floats(string):
+    return map(float, string.replace(",", "").split())

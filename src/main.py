@@ -3,13 +3,13 @@
 
 from os import environ
 from time import sleep
-from pprint import pprint
+from pprint import pformat
 
 from slackclient import SlackClient
 
 from response import response
 from parse import parse
-from utils import map_, pipe
+from utils import map_, newlines, pipe
 
 
 def send(slack_client):
@@ -28,16 +28,21 @@ def loop(slack_client, commands):
         return \
             pipe( packet
                 , send(slack_client)
-                , pprint
+                , pformat
+                , print
                 )
     return map_(f, commands)
 
 
 def death(bot_name):
-    if bot_name:
-        return "Rest in peace, {}.".format(bot_name)
-    else:
-        return "The bot no longer lives."
+    message = \
+        [ "\nNow cracks a noble heart."
+        , "Good night {}:"
+        , "And flights of angels sing thee to thy rest!"
+        ]
+    if not bot_name:
+        bot_name = "sweet prince"
+    return newlines(message).format(bot_name)
 
 
 def main():
@@ -48,12 +53,12 @@ def main():
             bot_creds = slack_client.api_call("auth.test")
             bot_name = bot_creds["user"]
             bot_id = bot_creds["user_id"]
-            print("{} is alive!".format(bot_name))
+            print("Good to see you again, {}.".format(bot_name))
             while True:
                 loop(slack_client, parse(bot_id, slack_client.rtm_read()))
                 sleep(1)
         else:
-            print("Unable to connect.")
+            print("Hmm, unable to connect.")
     except KeyboardInterrupt:
         print(death(bot_name))
 
