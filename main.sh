@@ -3,7 +3,7 @@
 main () {
     set -e
     for f in $(find . -type f -name "*.py"); do
-        echo $f
+        echo "linting $f"
         flake8_ignore $f
     done
     pytest
