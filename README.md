@@ -25,3 +25,9 @@ $ nix-shell
 $ nix-shell
 [nix-shell:~/sweetbot]$ bash clean.sh
 ```
+
+With `src/main.py` running, the bot can be interacted with in `Slack` by calling its name:
+```slack
+@sweetbot options
+```
+The terminal running the bot will print out some API request information as users interact with the bot. At the moment, unless the host crashes, the bot will run until the host cuts the cord with <kbd>ctrl + c</kbd>.
