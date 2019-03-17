@@ -28,12 +28,12 @@ def test_valid_message():
 
 
 def test_split_text():
-    assert split_text(EVENT) == ("UXXXXXXXX", "foo bar", "XXXXXXXXX")
+    assert split_text(EVENT) == (BOT_ID, "foo bar", EVENT["channel"])
 
 
 def test_messages():
     assert list(messages(EVENTS)) == \
-        [("UXXXXXXXX", "foo bar", "XXXXXXXXX"), (None, None, None)]
+        [(BOT_ID, "foo bar", EVENT["channel"]), (None, None, None)]
 
 
 class TestAtBot(object):
@@ -49,4 +49,4 @@ def test_remove_user_id():
 
 
 def test_parse():
-    assert list(parse(BOT_ID, EVENTS)) == [("foo bar", "XXXXXXXXX")]
+    assert list(parse(BOT_ID, EVENTS)) == [("foo bar", EVENT["channel"])]
