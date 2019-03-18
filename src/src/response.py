@@ -14,7 +14,7 @@ from .utils import block, check_float, inject, newlines, pipe, \
 
 BOT_NAME = "@sweetbot"
 LIST = r"((?:{}\s*,\s*)+{})"
-NUMERIC = r"[-+]?[0-9]*\.?[0-9]+"
+NUMERIC = r"[-+]?\d*\.?\d+"
 VARIADIC = r"\s*\(\s*{}\s*\)"
 
 
