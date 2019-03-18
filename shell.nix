@@ -8,6 +8,7 @@ with pkgs; mkShell {
                           pytz
                           flake8
                           pytest
+                          mypy
                         ]
                     ))
                   ];

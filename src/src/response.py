@@ -5,7 +5,7 @@ from datetime import datetime
 from re import search
 from statistics import mean, median, mode, stdev
 
-from scipy.stats import linregress
+from scipy.stats import linregress  # type: ignore
 from pytz import utc
 
 from .utils import block, check_float, inject, newlines, pipe, \

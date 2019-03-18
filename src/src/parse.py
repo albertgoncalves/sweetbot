@@ -14,8 +14,8 @@ def valid_message(event):
 def split_text(event):
     text = event["text"]
     results = search(MESSAGE, text)
+    pprint({"text": text})
     if results:
-        pprint({"text": text})
         return (results.group(1), results.group(2).strip(), event["channel"])
     else:
         return (None, None, None)
