@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from pprint import pprint
 from re import search
 
 MESSAGE = r"^<@(|[WU].+?)>(.*)"
@@ -14,6 +15,7 @@ def split_text(event):
     text = event["text"]
     results = search(MESSAGE, text)
     if results:
+        pprint({"text": text})
         return (results.group(1), results.group(2).strip(), event["channel"])
     else:
         return (None, None, None)

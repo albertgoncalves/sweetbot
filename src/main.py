@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from os import environ
-from time import sleep
 from pprint import pformat
+from time import sleep
 
 from slackclient import SlackClient
 
-from src.response import response
 from src.parse import parse
+from src.response import response
 from src.utils import map_, newlines, pipe
 
 
