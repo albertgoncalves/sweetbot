@@ -3,10 +3,9 @@
 
 from datetime import datetime
 from re import search
-from statistics import mean, median, mode
+from statistics import mean, median, mode, stdev
 
 from scipy.stats import linregress
-from numpy import std
 from pytz import utc
 
 from .utils import block, check_float, inject, newlines, pipe, \
@@ -73,7 +72,7 @@ def std_(command):
         [ "No dice!"
         , "Try `{} sd(-1, 0.01, 1)`"
         ]
-    return eval_list_with(std, command, "sd", message)
+    return eval_list_with(stdev, command, "sd", message)
 
 
 def dashboard(_):
@@ -111,7 +110,7 @@ def lm(command):
                            , [1, 2]
                            ))
         output = \
-            [ "{} = ".format(remove_whitespace(command))
+            [ "{} =".format(remove_whitespace(command))
             , "    slope     : {:8.9f}"
             , "    intercept : {:8.9f}"
             , "    r-squared : {:8.9f}"
