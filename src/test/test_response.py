@@ -7,7 +7,7 @@ from statistics import stdev
 from scipy.stats import linregress
 
 from src.response import BOT_NAME, clock, eval_list_with, lm, mean_, median_, \
-    mode_, response, sum_, std_
+    mode_, response, sum_, sd
 from src.utils import block, newlines, remove_whitespace
 
 
@@ -35,16 +35,28 @@ class TestEvalListWith(object):
         assert result == "failed"
 
 
-def test_sum_():
+def test_sum():
     command = "sum(1, 2, 3)"
     assert sum_(command) == \
         block("{} = 6".format(remove_whitespace(command)))
 
 
-def test_mean_():
+def test_mean():
     command = "mean(100, 100, 100)"
     assert mean_(command) == \
         block("{} = 100".format(remove_whitespace(command)))
+
+
+class TestMedian(object):
+    def test_exact(self):
+        command = "median(-11, -10.001, 1000)"
+        assert median_(command) == \
+            block("{} = -10.001".format(remove_whitespace(command)))
+
+    def test_split(self):
+        command = "median(-10.001, -10, 10, 1000)"
+        assert median_(command) == \
+            block("{} = 0".format(remove_whitespace(command)))
 
 
 class TestMode(object):
@@ -61,24 +73,12 @@ class TestMode(object):
         assert mode_("mode(1.01, 1.01, 0, 0)") == newlines(message)
 
 
-def test_std_():
+def test_sd():
     a, b, c = -1, 0, 1.01
     x = stdev([a, b, c])
     command = "sd({}, {}, {})".format(a, b, c)
-    assert std_(command) == \
+    assert sd(command) == \
         block("{} = {}".format(remove_whitespace(command), round(x, 10)))
-
-
-class TestMedian(object):
-    def test_exact(self):
-        command = "median(-11, -10.001, 1000)"
-        assert median_(command) == \
-            block("{} = -10.001".format(remove_whitespace(command)))
-
-    def test_split(self):
-        command = "median(-10.001, -10, 10, 1000)"
-        assert median_(command) == \
-            block("{} = 0".format(remove_whitespace(command)))
 
 
 def test_lm():

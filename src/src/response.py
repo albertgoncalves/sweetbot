@@ -67,7 +67,7 @@ def mode_(command):
     return eval_list_with(mode, command, "mode", message)
 
 
-def std_(command):
+def sd(command):
     message = \
         [ "No dice!"
         , "Try `{} sd(-1, 0.01, 1)`"
@@ -186,7 +186,7 @@ def response(command):
         , "mean": mean_
         , "median": median_
         , "mode": mode_
-        , "sd": std_
+        , "sd": sd
         , "dashboard": dashboard
         , "time": clock(datetime.now())
         , "lm": lm
