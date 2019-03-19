@@ -4,16 +4,21 @@
 from os import environ
 from pprint import pprint
 from time import sleep
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterator, Optional, Tuple
 
 from slackclient import SlackClient  # type: ignore
 
 from src.parse import parse
 from src.response import response
-from src.utils import map_, newlines, pipe
+from src.utils import newlines
+
+SLACK_CLIENT = Any
 
 
-def send(slack_client: Any, command: str, channel: str) -> Dict[str, str]:
+def send( slack_client: SLACK_CLIENT
+        , command: Optional[str]
+        , channel: Optional[str]
+        ) -> Dict[str, str]:
     sleep(0.1)
     return slack_client.api_call( "chat.postMessage"
                                 , channel=channel
@@ -21,12 +26,14 @@ def send(slack_client: Any, command: str, channel: str) -> Dict[str, str]:
                                 )
 
 
-def loop(slack_client: Any, commands: List[Tuple[str, str]]) -> None:
+def loop( slack_client: SLACK_CLIENT
+        , commands: Iterator[Tuple[Optional[str], Optional[str]]]
+        ) -> None:
     for command in commands:
         pprint(send(slack_client, *command))
 
 
-def death(bot_name: str) -> str:
+def death(bot_name: Optional[str]) -> str:
     message = \
         [ "\nNow cracks a noble heart."
         , "Good night {}:"

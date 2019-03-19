@@ -4,7 +4,7 @@
 from datetime import datetime
 from statistics import stdev
 
-from scipy.stats import linregress
+from scipy.stats import linregress  # type: ignore
 
 from src.response import BOT_NAME, clock, eval_list_with, lm, mean_, median_, \
     mode_, response, sum_, sd

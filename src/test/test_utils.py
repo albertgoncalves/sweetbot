@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.utils import check_float, inject, map_, pipe, string_to_floats
+from src.utils import check_float, inject, pipe, string_to_floats
 
 
 class TestCheckFloat(object):
@@ -18,10 +18,6 @@ class TestInject(object):
 
     def test_zero(self):
         assert inject("foo", "bar") == "foo"
-
-
-def test_map_():
-    assert map_(lambda x: x + 10, range(5)) == [10, 11, 12, 13, 14]
 
 
 def test_pipe():

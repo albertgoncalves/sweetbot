@@ -4,11 +4,12 @@
 from datetime import datetime
 from re import search
 from statistics import mean, median, mode, stdev
+from typing import Any, Callable, Iterator, List, Optional
 
 from scipy.stats import linregress  # type: ignore
 from pytz import utc
 
-from .utils import block, check_float, inject, newlines, pipe, \
+from .utils import block, check_float, extract, inject, newlines, pipe, \
     remove_whitespace, spaces, string_to_floats
 
 BOT_NAME = "@sweetbot"
@@ -17,7 +18,11 @@ NUMERIC = r"[-+]?\d*\.?\d+"
 VARIADIC = r"\s*\(\s*{}\s*\)"
 
 
-def eval_list_with(f, command, pattern, message):
+def eval_list_with( f: Callable[[Iterator[float]], float]
+                  , command: str
+                  , pattern: str
+                  , message: List[str]
+                  ) -> str:
     try:
         result = \
             pipe( (pattern + VARIADIC).format(inject(LIST, NUMERIC))
@@ -35,7 +40,7 @@ def eval_list_with(f, command, pattern, message):
         return newlines(message).format(BOT_NAME)
 
 
-def sum_(command):
+def sum_(command: str) -> str:
     message = \
         [ "That didn't work."
         , "Try `{} sum(1, 2, 3.01)`"
@@ -43,7 +48,7 @@ def sum_(command):
     return eval_list_with(sum, command, "sum", message)
 
 
-def mean_(command):
+def mean_(command: str) -> str:
     message = \
         [ "I don't understand."
         , "Try `{} mean(10, 11, 11.01)`"
@@ -51,7 +56,7 @@ def mean_(command):
     return eval_list_with(mean, command, "mean", message)
 
 
-def median_(command):
+def median_(command: str) -> str:
     message = \
         [ "Say what?"
         , "Try `{} median(10, -11, 1000)`"
@@ -59,7 +64,7 @@ def median_(command):
     return eval_list_with(median, command, "median", message)
 
 
-def mode_(command):
+def mode_(command: str) -> str:
     message = \
         [ "There may be *no* mode."
         , "Try `{} mode(1, 1, 1, 0, 0)`"
@@ -67,7 +72,7 @@ def mode_(command):
     return eval_list_with(mode, command, "mode", message)
 
 
-def sd(command):
+def sd(command: str) -> str:
     message = \
         [ "No dice!"
         , "Try `{} sd(-1, 0.01, 1)`"
@@ -75,7 +80,7 @@ def sd(command):
     return eval_list_with(stdev, command, "sd", message)
 
 
-def dashboard(_):
+def dashboard(_: Any) -> str:
     message = \
         [ "The three favorite children:"
         , "http://data-dashboards.sumall.net/sku_metrics/"
@@ -85,7 +90,7 @@ def dashboard(_):
     return newlines(message)
 
 
-def clock(now_here):
+def clock(now_here: datetime) -> Callable[[Any], str]:
     def f(_):
         timestamp = "%I:%M:%S %p"
         now_utc = now_here.astimezone(utc)
@@ -98,7 +103,7 @@ def clock(now_here):
     return f
 
 
-def lm(command):
+def lm(command: str) -> str:
     try:
         pattern = \
             inject( r"lm\(\s*\[\s*{}\s*\]\s*,\s*\[\s*{}\s*\]\s*\)"
@@ -106,7 +111,7 @@ def lm(command):
                   )
         xy = search(pattern, command)
         m, b, r, p, _ = \
-            linregress(*map( lambda i: list(string_to_floats(xy.group(i)))
+            linregress(*map( lambda i: list(string_to_floats(extract(xy, i)))
                            , [1, 2]
                            ))
         output = \
@@ -121,11 +126,11 @@ def lm(command):
         return "Wrong way.\nTry `{} lm([1, 2, 3], [3, 2, 1])`".format(BOT_NAME)
 
 
-def alive(_):
+def alive(_: Any) -> str:
     return "I endure amongst the living."
 
 
-def dreams(_):
+def dreams(_: Any) -> str:
     message = \
         [ "Had I the heaven's embroidered cloths,"
         , "Enwrought with golden and silver light,"
@@ -139,7 +144,7 @@ def dreams(_):
     return newlines(message)
 
 
-def truth(_):
+def truth(_: Any) -> str:
     message = \
         [ "The bud disappears in the bursting-forth of the blossom, and one"
         , "might say that the former is refuted by the latter; similarly, when"
@@ -150,7 +155,7 @@ def truth(_):
     return spaces(message)
 
 
-def pets(_):
+def pets(_: Any) -> str:
     message = \
         [ "Do I have pets? Sadly, not at the moment. I don't really have space"
         , "for them in my apartment, but I one day I'd like to have an"
@@ -159,7 +164,7 @@ def pets(_):
     return spaces(message)
 
 
-def options(_):
+def options(_: Any) -> str:
     message = \
         [ "Things you can to do while I'm not dead:"
         , " `{} sum(1, 2, 3)`"
@@ -180,24 +185,25 @@ def options(_):
     return inject(newlines(message), BOT_NAME)
 
 
-def response(command):
-    router = \
-        { "sum": sum_
-        , "mean": mean_
-        , "median": median_
-        , "mode": mode_
-        , "sd": sd
-        , "dashboard": dashboard
-        , "time": clock(datetime.now())
-        , "lm": lm
-        , "alive": alive
-        , "dreams": dreams
-        , "truth": truth
-        , "pets": pets
-        , "help": options
-        , "options": options
-        }
-    for key in router.keys():
-        if command.startswith(key):
-            return router[key](command)
+def response(command: Optional[str]) -> str:
+    if command:
+        router = \
+            { "sum": sum_
+            , "mean": mean_
+            , "median": median_
+            , "mode": mode_
+            , "sd": sd
+            , "dashboard": dashboard
+            , "time": clock(datetime.now())
+            , "lm": lm
+            , "alive": alive
+            , "dreams": dreams
+            , "truth": truth
+            , "pets": pets
+            , "help": options
+            , "options": options
+            }
+        for key in router.keys():
+            if command.startswith(key):
+                return router[key](command)
     return "Sorry, what is it you're trying to say?"
