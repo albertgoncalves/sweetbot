@@ -16,21 +16,23 @@ SLACK_CLIENT = Any
 
 
 def send( slack_client: SLACK_CLIENT
+        , bot_name: Optional[str]
         , command: Optional[str]
         , channel: Optional[str]
         ) -> Dict[str, str]:
     sleep(0.1)
     return slack_client.api_call( "chat.postMessage"
                                 , channel=channel
-                                , text=response(command)
+                                , text=response(command, bot_name)
                                 )
 
 
 def loop( slack_client: SLACK_CLIENT
+        , bot_name: Optional[str]
         , commands: Iterator[Tuple[Optional[str], Optional[str]]]
         ) -> None:
     for command in commands:
-        pprint(send(slack_client, *command))
+        pprint(send(slack_client, bot_name, *command))
 
 
 def death(bot_name: Optional[str]) -> str:
@@ -51,11 +53,14 @@ def main() -> None:
         if slack_client.rtm_connect(with_team_state=False):
             bot_creds = \
                 slack_client.api_call("auth.test")
-            bot_name = bot_creds["user"]
+            bot_name = "@{}".format(bot_creds["user"])
             bot_id = bot_creds["user_id"]
             print("Good to see you again, {}.".format(bot_name))
             while True:
-                loop(slack_client, parse(bot_id, slack_client.rtm_read()))
+                loop( slack_client
+                    , bot_name
+                    , parse(bot_id, slack_client.rtm_read())
+                    )
                 sleep(1)
         else:
             print("Hmm, unable to connect.")

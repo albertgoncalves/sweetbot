@@ -12,7 +12,6 @@ from pytz import utc
 from .utils import block, check_float, extract, inject, newlines, pipe, \
     remove_whitespace, spaces, string_to_floats
 
-BOT_NAME = "@sweetbot"
 LIST = r"((?:{}\s*,\s*)+{})"
 NUMERIC = r"[-+]?\d*\.?\d+"
 VARIADIC = r"\s*\(\s*{}\s*\)"
@@ -22,6 +21,7 @@ def eval_list_with( f: Callable[[Iterator[float]], float]
                   , command: str
                   , pattern: str
                   , message: List[str]
+                  , bot_name: str
                   ) -> str:
     try:
         result = \
@@ -37,47 +37,57 @@ def eval_list_with( f: Callable[[Iterator[float]], float]
         return \
             block("{} = {}".format(remove_whitespace(command), result))
     except:
-        return newlines(message).format(BOT_NAME)
+        return newlines(message).format(bot_name)
 
 
-def sum_(command: str) -> str:
-    message = \
-        [ "That didn't work."
-        , "Try `{} sum(1, 2, 3.01)`"
-        ]
-    return eval_list_with(sum, command, "sum", message)
+def sum_(bot_name: Optional[str]) -> Callable[[str], str]:
+    def f(command):
+        message = \
+            [ "That didn't work."
+            , "Try `{} sum(1, 2, 3.01)`"
+            ]
+        return eval_list_with(sum, command, "sum", message, bot_name)
+    return f
 
 
-def mean_(command: str) -> str:
-    message = \
-        [ "I don't understand."
-        , "Try `{} mean(10, 11, 11.01)`"
-        ]
-    return eval_list_with(mean, command, "mean", message)
+def mean_(bot_name: Optional[str]) -> Callable[[str], str]:
+    def f(command):
+        message = \
+            [ "I don't understand."
+            , "Try `{} mean(10, 11, 11.01)`"
+            ]
+        return eval_list_with(mean, command, "mean", message, bot_name)
+    return f
 
 
-def median_(command: str) -> str:
-    message = \
-        [ "Say what?"
-        , "Try `{} median(10, -11, 1000)`"
-        ]
-    return eval_list_with(median, command, "median", message)
+def median_(bot_name: Optional[str]) -> Callable[[str], str]:
+    def f(command):
+        message = \
+            [ "Say what?"
+            , "Try `{} median(10, -11, 1000)`"
+            ]
+        return eval_list_with(median, command, "median", message, bot_name)
+    return f
 
 
-def mode_(command: str) -> str:
-    message = \
-        [ "There may be *no* mode."
-        , "Try `{} mode(1, 1, 1, 0, 0)`"
-        ]
-    return eval_list_with(mode, command, "mode", message)
+def mode_(bot_name: Optional[str]) -> Callable[[str], str]:
+    def f(command):
+        message = \
+            [ "There may be *no* mode."
+            , "Try `{} mode(1, 1, 1, 0, 0)`"
+            ]
+        return eval_list_with(mode, command, "mode", message, bot_name)
+    return f
 
 
-def sd(command: str) -> str:
-    message = \
-        [ "No dice!"
-        , "Try `{} sd(-1, 0.01, 1)`"
-        ]
-    return eval_list_with(stdev, command, "sd", message)
+def sd(bot_name: Optional[str]) -> Callable[[str], str]:
+    def f(command):
+        message = \
+            [ "No dice!"
+            , "Try `{} sd(-1, 0.01, 1)`"
+            ]
+        return eval_list_with(stdev, command, "sd", message, bot_name)
+    return f
 
 
 def dashboard(_: Any) -> str:
@@ -103,27 +113,33 @@ def clock(now_here: datetime) -> Callable[[Any], str]:
     return f
 
 
-def lm(command: str) -> str:
-    try:
-        pattern = \
-            inject( r"lm\(\s*\[\s*{}\s*\]\s*,\s*\[\s*{}\s*\]\s*\)"
-                  , inject(LIST, NUMERIC)
-                  )
-        xy = search(pattern, command)
-        m, b, r, p, _ = \
-            linregress(*map( lambda i: list(string_to_floats(extract(xy, i)))
-                           , [1, 2]
-                           ))
-        output = \
-            [ "{} =".format(remove_whitespace(command))
-            , "    slope     : {:8.9f}"
-            , "    intercept : {:8.9f}"
-            , "    r-squared : {:8.9f}"
-            , "    p-value   : {:8.9f}"
-            ]
-        return block(newlines(output).format(m, b, r ** 2, p))
-    except:
-        return "Wrong way.\nTry `{} lm([1, 2, 3], [3, 2, 1])`".format(BOT_NAME)
+def lm(bot_name: Optional[str]) -> Callable[[str], str]:
+    def f(command):
+        try:
+            pattern = \
+                inject( r"lm\(\s*\[\s*{}\s*\]\s*,\s*\[\s*{}\s*\]\s*\)"
+                      , inject(LIST, NUMERIC)
+                      )
+            xy_string = search(pattern, command)
+            xy = map( lambda i: list(string_to_floats(extract(xy_string, i)))
+                    , [1, 2]
+                    )
+            m, b, r, p, _ = linregress(*xy)
+            output = \
+                [ "{} =".format(remove_whitespace(command))
+                , "    slope     : {:8.9f}"
+                , "    intercept : {:8.9f}"
+                , "    r-squared : {:8.9f}"
+                , "    p-value   : {:8.9f}"
+                ]
+            return block(newlines(output).format(m, b, r ** 2, p))
+        except:
+            message = \
+                [ "Wrong way."
+                , "Try `{} lm([1, 2, 3], [3, 2, 1])`"
+                ]
+            return newlines(message).format(bot_name)
+    return f
 
 
 def alive(_: Any) -> str:
@@ -164,44 +180,46 @@ def pets(_: Any) -> str:
     return spaces(message)
 
 
-def options(_: Any) -> str:
-    message = \
-        [ "Things you can to do while I'm not dead:"
-        , " `{} sum(1, 2, 3)`"
-        , " `{} mean(-100, 0, 101)`"
-        , " `{} median(-1, 2, 10000)`"
-        , " `{} mode(1, 1, 1, 1.01)`"
-        , " `{} sd(-10, 0, 10, 11)`"
-        , " `{} lm([1, 1, 1, 2], [5, 5, 6, 8])`"
-        , " `{} time`"
-        , " `{} dashboard`"
-        , " `{} alive`"
-        , " `{} dreams`"
-        , " `{} truth`"
-        , " `{} pets`"
-        , " `{} help`"
-        , " `{} options`"
-        ]
-    return inject(newlines(message), BOT_NAME)
+def options(bot_name: Optional[str]) -> Callable[[Any], str]:
+    def f(_):
+        message = \
+            [ "Things you can to do while I'm not dead:"
+            , " `{} sum(1, 2, 3)`"
+            , " `{} mean(-100, 0, 101)`"
+            , " `{} median(-1, 2, 10000)`"
+            , " `{} mode(1, 1, 1, 1.01)`"
+            , " `{} sd(-10, 0, 10, 11)`"
+            , " `{} lm([1, 1, 1, 2], [5, 5, 6, 8])`"
+            , " `{} time`"
+            , " `{} dashboard`"
+            , " `{} alive`"
+            , " `{} dreams`"
+            , " `{} truth`"
+            , " `{} pets`"
+            , " `{} help`"
+            , " `{} options`"
+            ]
+        return inject(newlines(message), bot_name)
+    return f
 
 
-def response(command: Optional[str]) -> str:
+def response(command: Optional[str], bot_name: Optional[str]) -> str:
     if command:
         router = \
-            { "sum": sum_
-            , "mean": mean_
-            , "median": median_
-            , "mode": mode_
-            , "sd": sd
+            { "help": options(bot_name)
+            , "options": options(bot_name)
+            , "sum": sum_(bot_name)
+            , "mean": mean_(bot_name)
+            , "median": median_(bot_name)
+            , "mode": mode_(bot_name)
+            , "sd": sd(bot_name)
+            , "lm": lm(bot_name)
             , "dashboard": dashboard
             , "time": clock(datetime.now())
-            , "lm": lm
             , "alive": alive
             , "dreams": dreams
             , "truth": truth
             , "pets": pets
-            , "help": options
-            , "options": options
             }
         for key in router.keys():
             if command.startswith(key):

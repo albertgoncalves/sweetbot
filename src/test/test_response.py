@@ -6,8 +6,8 @@ from statistics import stdev
 
 from scipy.stats import linregress  # type: ignore
 
-from src.response import BOT_NAME, clock, eval_list_with, lm, mean_, median_, \
-    mode_, response, sum_, sd
+from src.response import clock, eval_list_with, lm, mean_, median_, mode_, \
+    response, sum_, sd
 from src.utils import block, newlines, remove_whitespace
 
 
@@ -21,6 +21,7 @@ class TestEvalListWith(object):
         { "f": head
         , "pattern": pattern
         , "message": ["failed"]
+        , "bot_name": None
         }
 
     def test_eval(self):
@@ -37,47 +38,47 @@ class TestEvalListWith(object):
 
 def test_sum():
     command = "sum(1, 2, 3)"
-    assert sum_(command) == \
+    assert sum_(None)(command) == \
         block("{} = 6".format(remove_whitespace(command)))
 
 
 def test_mean():
     command = "mean(100, 100, 100)"
-    assert mean_(command) == \
+    assert mean_(None)(command) == \
         block("{} = 100".format(remove_whitespace(command)))
 
 
 class TestMedian(object):
     def test_exact(self):
         command = "median(-11, -10.001, 1000)"
-        assert median_(command) == \
+        assert median_(None)(command) == \
             block("{} = -10.001".format(remove_whitespace(command)))
 
     def test_split(self):
         command = "median(-10.001, -10, 10, 1000)"
-        assert median_(command) == \
+        assert median_(None)(command) == \
             block("{} = 0".format(remove_whitespace(command)))
 
 
 class TestMode(object):
     def test_no_exception(self):
         command = "mode(1.01, 1.01, 1.01, 0, 0)"
-        assert mode_(command) == \
+        assert mode_(None)(command) == \
             block("{} = 1.01".format(remove_whitespace(command)))
 
     def test_exception(self):
         message = \
             [ "There may be *no* mode."
-            , "Try `{} mode(1, 1, 1, 0, 0)`".format(BOT_NAME)
+            , "Try `{} mode(1, 1, 1, 0, 0)`".format(None)
             ]
-        assert mode_("mode(1.01, 1.01, 0, 0)") == newlines(message)
+        assert mode_(None)("mode(1.01, 1.01, 0, 0)") == newlines(message)
 
 
 def test_sd():
     a, b, c = -1, 0, 1.01
     x = stdev([a, b, c])
     command = "sd({}, {}, {})".format(a, b, c)
-    assert sd(command) == \
+    assert sd(None)(command) == \
         block("{} = {}".format(remove_whitespace(command), round(x, 10)))
 
 
@@ -93,15 +94,16 @@ def test_lm():
         , "    r-squared : {:8.9f}"
         , "    p-value   : {:8.9f}"
         ]
-    assert lm(command) == block(newlines(response).format(m, b, r ** 2, p))
+    assert lm(None)(command) == \
+        block(newlines(response).format(m, b, r ** 2, p))
 
 
 class TestResponse(object):
     def test_fallback(self):
-        assert response("") == "Sorry, what is it you're trying to say?"
+        assert response("", None) == "Sorry, what is it you're trying to say?"
 
     def test_alive(self):
-        assert response("alive") == "I endure amongst the living."
+        assert response("alive", None) == "I endure amongst the living."
 
 
 class TestClock(object):
