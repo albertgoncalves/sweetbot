@@ -21,7 +21,7 @@ def eval_list_with( f: Callable[[Iterator[float]], float]
                   , command: str
                   , pattern: str
                   , message: List[str]
-                  , bot_name: str
+                  , bot_name: Optional[str]
                   ) -> str:
     try:
         result = \

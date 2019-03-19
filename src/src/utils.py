@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Iterator, List, Match, Optional, Union
+from typing import Any, Callable, Iterator, List, Match, Optional, Union
 
 
 def block(string: str) -> str:
@@ -17,7 +17,7 @@ def extract(match: Optional[Match[str]], i: int) -> Optional[str]:
     return match.group(i) if match else None
 
 
-def inject(container: str, pattern: str) -> str:
+def inject(container: str, pattern: Optional[str]) -> str:
     return container.replace("{}", "{pattern}").format(**{"pattern": pattern})
 
 
@@ -29,7 +29,7 @@ def newlines(strings: List[str]) -> str:
     return "\n".join(strings)
 
 
-def pipe(x, *fs):
+def pipe(x: Any, *fs: Callable[[Any], Any]) -> Any:
     for f in fs:
         x = f(x)
     return x

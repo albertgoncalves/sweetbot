@@ -11,6 +11,7 @@ lint () {
         --warn-redundant-casts \
         --warn-unused-ignores \
         --warn-return-any \
+        --check-untyped-defs\
         $1
 }
 
