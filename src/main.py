@@ -4,7 +4,7 @@
 from os import environ
 from pprint import pprint
 from time import sleep
-from typing import Any, Dict, Iterator, Optional, Tuple
+from typing import Dict, Iterator, Optional, Tuple
 
 from slackclient import SlackClient  # type: ignore
 
@@ -12,10 +12,8 @@ from src.parse import parse
 from src.response import response
 from src.utils import newlines
 
-SLACK_CLIENT = Any
 
-
-def send( slack_client: SLACK_CLIENT
+def send( slack_client: SlackClient[str]
         , bot_name: Optional[str]
         , command: Optional[str]
         , channel: Optional[str]
@@ -27,7 +25,7 @@ def send( slack_client: SLACK_CLIENT
                                 )
 
 
-def loop( slack_client: SLACK_CLIENT
+def loop( slack_client: SlackClient[str]
         , bot_name: Optional[str]
         , commands: Iterator[Tuple[Optional[str], Optional[str]]]
         ) -> None:
