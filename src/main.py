@@ -64,7 +64,7 @@ def main() -> None:
                     , bot_name
                     , parse(bot_id, slack_client.rtm_read())
                     )
-                sleep(0.5)
+                sleep(0.75)
         else:
             print("Hmm, unable to connect.")
     except KeyboardInterrupt:

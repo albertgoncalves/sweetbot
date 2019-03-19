@@ -10,17 +10,11 @@ def block(string: str) -> str:
 
 def check_float(x: Union[int, float]) -> Union[int, float]:
     int_x = int(x)
-    if float(int_x) == x:
-        return int_x
-    else:
-        return x
+    return int_x if int_x == x else x
 
 
 def extract(match: Optional[Match[str]], i: int) -> Optional[str]:
-    if match is None:
-        return None
-    else:
-        return match.group(i)
+    return match.group(i) if match else None
 
 
 def inject(container: str, pattern: str) -> str:
@@ -51,4 +45,4 @@ def string_to_floats(string: Optional[str]) -> Iterator[Optional[float]]:
             return float(s)
         except ValueError:
             return None
-    return map(f, string.replace(" ", "").split(","))
+    return map(f, string.replace(" ", "").split(",") if string else [])
