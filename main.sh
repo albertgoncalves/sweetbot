@@ -7,7 +7,7 @@ main () {
         lint $f
     done
     pytest
-    # python_with .env src/main.py
+    python_with .env src/main.py
 }
 
 export -f main
