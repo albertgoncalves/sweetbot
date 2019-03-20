@@ -4,36 +4,34 @@
 from os import environ
 from pprint import pprint
 from time import sleep
-from typing import Any, Iterator, Optional, Tuple
+from typing import Dict, Iterator, Optional, Tuple
 
-from slackclient import SlackClient  # type: ignore
+from slackclient import SlackClient
 
 from src.parse import parse
 from src.response import response
 from src.utils import newlines
-
-# Currently lacking typedefs for the slackclient module; while this alias will
-# not throw any helpful compile-time warnings or errors, it does provide a
-# minimal amount of type-level information to the reader.
-SLACK_CLIENT = Any
 
 
 class ApiError(Exception):
     pass
 
 
-def send( slack_client: SLACK_CLIENT
+def send( slack_client: SlackClient
         , bot_name: Optional[str]
         , command: Optional[str]
         , channel: Optional[str]
-        ) -> SLACK_CLIENT:
-    return slack_client.api_call( "chat.postMessage"
-                                , channel=channel
-                                , text=response(command, bot_name)
-                                )
+        ) -> Dict[str, str]:
+    if command and channel:
+        return slack_client.api_call( "chat.postMessage"
+                                    , channel=channel
+                                    , text=response(command, bot_name)
+                                    )
+    else:
+        raise ApiError("Malformed channel or command, closing connection.")
 
 
-def loop( slack_client: SLACK_CLIENT
+def loop( slack_client: SlackClient
         , bot_name: Optional[str]
         , commands: Iterator[Tuple[Optional[str], Optional[str]]]
         ) -> None:
