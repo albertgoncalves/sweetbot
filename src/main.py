@@ -18,6 +18,10 @@ from src.utils import newlines
 SLACK_CLIENT = Any
 
 
+class ApiError(Exception):
+    pass
+
+
 def send( slack_client: SLACK_CLIENT
         , bot_name: Optional[str]
         , command: Optional[str]
@@ -34,13 +38,21 @@ def loop( slack_client: SLACK_CLIENT
         , commands: Iterator[Tuple[Optional[str], Optional[str]]]
         ) -> None:
     for command in commands:
-        pprint(send(slack_client, bot_name, *command))
-        sleep(0.15)
+        response = send(slack_client, bot_name, *command)
+        pprint(response)
+        ok = response["ok"]
+        if ok:
+            sleep(0.15)
+        else:
+            message = \
+                "API response returned {}, closing connection.".format(ok)
+            raise ApiError(message)
 
 
-def death(bot_name: Optional[str]) -> str:
+def death(bot_name: Optional[str], exception: str) -> str:
     message = \
-        [ "\nNow cracks a noble heart."
+        [ exception
+        , "\nNow cracks a noble heart."
         , "Good night {}:"
         , "And flights of angels sing thee to thy rest!"
         ]
@@ -53,12 +65,13 @@ def main() -> None:
     bot_name = None
     try:
         slack_client = SlackClient(environ["SLACK_BOT_TOKEN"])
-        if slack_client.rtm_connect(with_team_state=False):
+        kwargs = {"with_team_state": False, "auto_reconnect": True}
+        if slack_client.rtm_connect(**kwargs):
             bot_creds = \
                 slack_client.api_call("auth.test")
             bot_name = "@{}".format(bot_creds["user"])
             bot_id = bot_creds["user_id"]
-            print("Good to see you again, {}.".format(bot_name))
+            print("Good to see you again, {}.\n".format(bot_name))
             while True:
                 loop( slack_client
                     , bot_name
@@ -67,8 +80,8 @@ def main() -> None:
                 sleep(0.75)
         else:
             print("Hmm, unable to connect.")
-    except KeyboardInterrupt:
-        print(death(bot_name))
+    except (KeyboardInterrupt, ApiError) as e:
+        print(death(bot_name, str(e)))
 
 
 if __name__ == "__main__":

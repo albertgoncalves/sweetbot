@@ -20,7 +20,7 @@ lint_if () {
 
 main () {
     set -e
-    timestamp=".time"
+    timestamp=".lint_cache"
     cd $WD
     time=$(check_time $timestamp)
     lint_if $time
