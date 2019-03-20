@@ -11,6 +11,7 @@ with pkgs; mkShell {
             slackclient
             statsmodels
         ]))
+        coreutils
     ];
     shellHook = ''
         export NIX_SHELL=1
