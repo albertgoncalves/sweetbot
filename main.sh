@@ -12,4 +12,8 @@ main () {
 
 export -f main
 
-nix-shell --run "main"
+if [ -z $NIX_SHELL ]; then
+    nix-shell --run main
+else
+    main
+fi

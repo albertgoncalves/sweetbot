@@ -13,6 +13,7 @@ with pkgs; mkShell {
         ]))
     ];
     shellHook = ''
+        export NIX_SHELL=1
         . .alias
     '';
 }
