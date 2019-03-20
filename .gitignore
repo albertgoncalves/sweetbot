@@ -4,6 +4,7 @@
 !.alias
 !test
 !main
+!clean
 !*.py
 !*.sh
 !shell.nix
