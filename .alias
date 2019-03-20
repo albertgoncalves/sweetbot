@@ -21,3 +21,4 @@ python_with () {
 
 export -f lint
 export -f python_with
+export WD=$(pwd)

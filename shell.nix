@@ -14,7 +14,6 @@ with pkgs; mkShell {
         coreutils
     ];
     shellHook = ''
-        export NIX_SHELL=1
         . .alias
     '';
 }
