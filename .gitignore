@@ -10,3 +10,4 @@
 !shell.nix
 !src/
 !test/
+!stubs/
