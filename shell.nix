@@ -15,5 +15,8 @@ with pkgs; mkShell {
     ];
     shellHook = ''
         . .alias
+        if [ ! -d imgs/ ]; then
+            mkdir imgs/
+        fi
     '';
 }
