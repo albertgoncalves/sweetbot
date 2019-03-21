@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from src.parse import at_bot, messages, parse, remove_user_id, split_text, \
     valid_message
