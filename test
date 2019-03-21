@@ -24,8 +24,8 @@ main () {
     cd $WD
     time=$(check_time $timestamp)
     lint_if $time
-    pytest src/test/
     echo $(date +%s) > $timestamp
+    pytest --maxfail=1 src/test/
 }
 
 main

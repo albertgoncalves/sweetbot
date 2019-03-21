@@ -3,7 +3,7 @@
 from datetime import datetime
 from re import search
 from statistics import mean, median, mode, stdev
-from typing import Any, Callable, Iterator, List, Optional
+from typing import Any, Callable, Iterator, List, Optional, Tuple
 
 from scipy.stats import linregress  # type: ignore
 from pytz import utc
@@ -14,6 +14,9 @@ from .utils import block, check_float, extract, inject, newlines, pipe, \
 LIST = r"((?:{}\s*,\s*)+{})"
 NUMERIC = r"[-+]?\d*\.?\d+"
 VARIADIC = r"\s*\(\s*{}\s*\)"
+
+POST_MESSAGE = "chat.postMessage"
+UPLOAD_FILE = "files.upload"
 
 
 def eval_list_with( f: Callable[[Iterator[float]], float]
@@ -39,67 +42,83 @@ def eval_list_with( f: Callable[[Iterator[float]], float]
         return newlines(message).format(bot_name)
 
 
-def sum_(bot_name: Optional[str]) -> Callable[[str], str]:
+def sum_(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
     def f(command):
         message = \
             [ "That didn't work."
             , "Try `{} sum(1, 2, 3.01)`"
             ]
-        return eval_list_with(sum, command, "sum", message, bot_name)
+        return \
+            ( POST_MESSAGE
+            , eval_list_with(sum, command, "sum", message, bot_name)
+            )
     return f
 
 
-def mean_(bot_name: Optional[str]) -> Callable[[str], str]:
+def mean_(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
     def f(command):
         message = \
             [ "I don't understand."
             , "Try `{} mean(10, 11, 11.01)`"
             ]
-        return eval_list_with(mean, command, "mean", message, bot_name)
+        return \
+            ( POST_MESSAGE
+            , eval_list_with(mean, command, "mean", message, bot_name)
+            )
     return f
 
 
-def median_(bot_name: Optional[str]) -> Callable[[str], str]:
+def median_(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
     def f(command):
         message = \
             [ "Say what?"
             , "Try `{} median(10, -11, 1000)`"
             ]
-        return eval_list_with(median, command, "median", message, bot_name)
+        return \
+            ( POST_MESSAGE
+            , eval_list_with(median, command, "median", message, bot_name)
+            )
     return f
 
 
-def mode_(bot_name: Optional[str]) -> Callable[[str], str]:
+def mode_(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
     def f(command):
         message = \
             [ "There may be *no* mode."
             , "Try `{} mode(1, 1, 1, 0, 0)`"
             ]
-        return eval_list_with(mode, command, "mode", message, bot_name)
+        return \
+            ( POST_MESSAGE
+            , eval_list_with(mode, command, "mode", message, bot_name)
+            )
     return f
 
 
-def sd(bot_name: Optional[str]) -> Callable[[str], str]:
+def sd(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
     def f(command):
         message = \
             [ "No dice!"
             , "Try `{} sd(-1, 0.01, 1)`"
             ]
-        return eval_list_with(stdev, command, "sd", message, bot_name)
+
+        return \
+            ( POST_MESSAGE
+            , eval_list_with(stdev, command, "sd", message, bot_name)
+            )
     return f
 
 
-def dashboard(_: Any) -> str:
+def dashboard(_: Any) -> Tuple[str, str]:
     message = \
         [ "The three favorite children:"
         , "http://data-dashboards.sumall.net/sku_metrics/"
         , "http://data-dashboards.sumall.net/adjusted_orders/"
         , "http://data-dashboards.sumall.net/bin_viewer/"
         ]
-    return newlines(message)
+    return (POST_MESSAGE, newlines(message))
 
 
-def clock(now_here: datetime) -> Callable[[Any], str]:
+def clock(now_here: datetime) -> Callable[[Any], Tuple[str, str]]:
     def f(_):
         timestamp = "%I:%M:%S %p"
         now_utc = now_here.astimezone(utc)
@@ -108,11 +127,11 @@ def clock(now_here: datetime) -> Callable[[Any], str]:
             , "utc  : {}"
             ]
         nows = map(lambda now: now.strftime(timestamp), [now_here, now_utc])
-        return block(newlines(results).format(*nows))
+        return (POST_MESSAGE, block(newlines(results).format(*nows)))
     return f
 
 
-def lm(bot_name: Optional[str]) -> Callable[[str], str]:
+def lm(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
     def f(command):
         try:
             pattern = \
@@ -131,21 +150,22 @@ def lm(bot_name: Optional[str]) -> Callable[[str], str]:
                 , "    r-squared : {:8.9f}"
                 , "    p-value   : {:8.9f}"
                 ]
-            return block(newlines(output).format(m, b, r ** 2, p))
+            return \
+                (POST_MESSAGE, block(newlines(output).format(m, b, r ** 2, p)))
         except:
             message = \
                 [ "Wrong way."
                 , "Try `{} lm([1, 2, 3], [3, 2, 1])`"
                 ]
-            return newlines(message).format(bot_name)
+            return (POST_MESSAGE, newlines(message).format(bot_name))
     return f
 
 
-def alive(_: Any) -> str:
-    return "I endure amongst the living."
+def alive(_: Any) -> Tuple[str, str]:
+    return (POST_MESSAGE, "I endure amongst the living.")
 
 
-def dreams(_: Any) -> str:
+def dreams(_: Any) -> Tuple[str, str]:
     message = \
         [ "Had I the heaven's embroidered cloths,"
         , "Enwrought with golden and silver light,"
@@ -156,10 +176,10 @@ def dreams(_: Any) -> str:
         , "I have spread my dreams under your feet;"
         , "Tread softly because you tread on my dreams."
         ]
-    return newlines(message)
+    return (POST_MESSAGE, newlines(message))
 
 
-def truth(_: Any) -> str:
+def truth(_: Any) -> Tuple[str, str]:
     message = \
         [ "The bud disappears in the bursting-forth of the blossom, and one"
         , "might say that the former is refuted by the latter; similarly, when"
@@ -167,19 +187,19 @@ def truth(_: Any) -> str:
         , "manifestation of the plant, and the fruit now emerges as the"
         , "*truth* of it instead."
         ]
-    return spaces(message)
+    return (POST_MESSAGE, spaces(message))
 
 
-def pets(_: Any) -> str:
+def pets(_: Any) -> Tuple[str, str]:
     message = \
         [ "Do I have pets? Sadly, not at the moment. I don't really have space"
         , "for them in my apartment, but I one day I'd like to have an"
         , "*electric sheep*."
         ]
-    return spaces(message)
+    return (POST_MESSAGE, spaces(message))
 
 
-def options(bot_name: Optional[str]) -> Callable[[Any], str]:
+def options(bot_name: Optional[str]) -> Callable[[Any], Tuple[str, str]]:
     def f(_):
         message = \
             [ "Things you can to do while I'm not dead:"
@@ -198,11 +218,13 @@ def options(bot_name: Optional[str]) -> Callable[[Any], str]:
             , " `{} help`"
             , " `{} options`"
             ]
-        return inject(newlines(message), bot_name)
+        return (POST_MESSAGE, inject(newlines(message), bot_name))
     return f
 
 
-def response(command: Optional[str], bot_name: Optional[str]) -> str:
+def response( command: Optional[str]
+            , bot_name: Optional[str]
+            ) -> Tuple[str, str]:
     if command:
         router = \
             { "help": options(bot_name)
@@ -223,4 +245,4 @@ def response(command: Optional[str], bot_name: Optional[str]) -> str:
         for key in router.keys():
             if command.startswith(key):
                 return router[key](command)
-    return "Sorry, what is it you're trying to say?"
+    return (POST_MESSAGE, "Sorry, what is it you're trying to say?")

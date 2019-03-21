@@ -22,9 +22,10 @@ def send( slack_client: SlackClient
         , channel: Optional[str]
         ) -> Dict[str, str]:
     if command and channel:
-        return slack_client.api_call( "chat.postMessage"
+        request, text = response(command, bot_name)
+        return slack_client.api_call( request
                                     , channel=channel
-                                    , text=response(command, bot_name)
+                                    , text=text
                                     )
     else:
         raise ApiError("Malformed channel or command, closing connection.")

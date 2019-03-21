@@ -6,7 +6,7 @@ from statistics import stdev
 from scipy.stats import linregress  # type: ignore
 
 from src.response import clock, eval_list_with, lm, mean_, median_, mode_, \
-    response, sum_, sd
+    POST_MESSAGE, response, sum_, sd
 from src.utils import block, newlines, remove_whitespace
 
 
@@ -38,39 +38,44 @@ class TestEvalListWith(object):
 def test_sum():
     command = "sum(1, 2, 3)"
     assert sum_(None)(command) == \
-        block("{} = 6".format(remove_whitespace(command)))
+        (POST_MESSAGE, block("{} = 6".format(remove_whitespace(command))))
 
 
 def test_mean():
     command = "mean(100, 100, 100)"
     assert mean_(None)(command) == \
-        block("{} = 100".format(remove_whitespace(command)))
+        (POST_MESSAGE, block("{} = 100".format(remove_whitespace(command))))
 
 
 class TestMedian(object):
     def test_exact(self):
         command = "median(-11, -10.001, 1000)"
         assert median_(None)(command) == \
-            block("{} = -10.001".format(remove_whitespace(command)))
+            ( POST_MESSAGE
+            , block("{} = -10.001".format(remove_whitespace(command)))
+            )
 
     def test_split(self):
         command = "median(-10.001, -10, 10, 1000)"
         assert median_(None)(command) == \
-            block("{} = 0".format(remove_whitespace(command)))
+            (POST_MESSAGE, block("{} = 0".format(remove_whitespace(command))))
 
 
 class TestMode(object):
     def test_no_exception(self):
         command = "mode(1.01, 1.01, 1.01, 0, 0)"
         assert mode_(None)(command) == \
-            block("{} = 1.01".format(remove_whitespace(command)))
+            ( POST_MESSAGE
+            , block("{} = 1.01".format(remove_whitespace(command)))
+            )
 
     def test_exception(self):
         message = \
             [ "There may be *no* mode."
             , "Try `{} mode(1, 1, 1, 0, 0)`".format(None)
             ]
-        assert mode_(None)("mode(1.01, 1.01, 0, 0)") == newlines(message)
+        assert mode_(None)("mode(1.01, 1.01, 0, 0)") == \
+            (POST_MESSAGE, newlines(message))
 
 
 def test_sd():
@@ -78,7 +83,9 @@ def test_sd():
     x = stdev([a, b, c])
     command = "sd({}, {}, {})".format(a, b, c)
     assert sd(None)(command) == \
-        block("{} = {}".format(remove_whitespace(command), round(x, 10)))
+        ( POST_MESSAGE
+        , block("{} = {}".format(remove_whitespace(command), round(x, 10)))
+        )
 
 
 def test_lm():
@@ -94,24 +101,26 @@ def test_lm():
         , "    p-value   : {:8.9f}"
         ]
     assert lm(None)(command) == \
-        block(newlines(response).format(m, b, r ** 2, p))
+        (POST_MESSAGE, block(newlines(response).format(m, b, r ** 2, p)))
 
 
 class TestResponse(object):
     def test_fallback(self):
-        assert response("", None) == "Sorry, what is it you're trying to say?"
+        assert response("", None) == \
+            (POST_MESSAGE, "Sorry, what is it you're trying to say?")
 
     def test_alive(self):
-        assert response("alive", None) == "I endure amongst the living."
+        assert response("alive", None) == \
+            (POST_MESSAGE, "I endure amongst the living.")
 
 
 class TestClock(object):
     def test_est(self):
         time = datetime(2019, 1, 1, 0, 0)
         response = block("here : 12:00:00 AM\nutc  : 05:00:00 AM")
-        assert clock(time)(None) == response
+        assert clock(time)(None) == (POST_MESSAGE, response)
 
     def test_edt(self):
         time = datetime(2019, 4, 1, 0, 0)
         response = block("here : 12:00:00 AM\nutc  : 04:00:00 AM")
-        assert clock(time)(None) == response
+        assert clock(time)(None) == (POST_MESSAGE, response)
