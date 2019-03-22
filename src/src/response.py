@@ -26,18 +26,16 @@ def eval_list_with( f: Callable[[Iterator[float]], float]
                   , bot_name: Optional[str]
                   ) -> str:
     try:
-        result = \
-            pipe( (pattern + VARIADIC).format(inject(LIST, NUMERIC))
-                , lambda pattern: search(pattern, command)
-                , lambda xs: xs.group(1)
-                , string_to_floats
-                , f
-                , lambda x: round(x, 10)
-                , check_float
-                , str
-                )
-        return \
-            block("{} = {}".format(remove_whitespace(command), result))
+        result = pipe( (pattern + VARIADIC).format(inject(LIST, NUMERIC))
+                     , lambda pattern: search(pattern, command)
+                     , lambda xs: xs.group(1)
+                     , string_to_floats
+                     , f
+                     , lambda x: round(x, 10)
+                     , check_float
+                     , str
+                     )
+        return block("{} = {}".format(remove_whitespace(command), result))
     except:
         return newlines(message).format(bot_name)
 
@@ -134,11 +132,10 @@ def clock(now_here: datetime) -> Callable[[Any], Tuple[str, str]]:
 def iter_from_maybe( string: Optional[Match[str]]
                    ) -> Callable[[int], List[float]]:
     def f(i):
-        return \
-            pipe( extract(string, i)
-                , string_to_floats
-                , from_maybe
-                )
+        return pipe( extract(string, i)
+                   , string_to_floats
+                   , from_maybe
+                   )
     return f
 
 
