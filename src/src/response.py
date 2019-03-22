@@ -3,13 +3,13 @@
 from datetime import datetime
 from re import search
 from statistics import mean, median, mode, stdev
-from typing import Any, Callable, Iterator, List, Optional, Tuple
+from typing import Any, Callable, Iterator, List, Match, Optional, Tuple
 
-from scipy.stats import linregress  # type: ignore
+from scipy.stats import linregress
 from pytz import utc
 
-from .utils import block, check_float, extract, inject, newlines, pipe, \
-    remove_whitespace, spaces, string_to_floats
+from .utils import block, check_float, extract, from_maybe, inject, newlines, \
+    pipe, remove_whitespace, spaces, string_to_floats
 
 LIST = r"((?:{}\s*,\s*)+{})"
 NUMERIC = r"[-+]?\d*\.?\d+"
@@ -131,6 +131,13 @@ def clock(now_here: datetime) -> Callable[[Any], Tuple[str, str]]:
     return f
 
 
+def iter_from_maybe( string: Optional[Match[str]]
+                   ) -> Callable[[int], List[float]]:
+    def f(i):
+        return from_maybe(string_to_floats(extract(string, i)))
+    return f
+
+
 def lm(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
     def f(command):
         try:
@@ -139,10 +146,8 @@ def lm(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
                       , inject(LIST, NUMERIC)
                       )
             xy_string = search(pattern, command)
-            xy = map( lambda i: list(string_to_floats(extract(xy_string, i)))
-                    , [1, 2]
-                    )
-            m, b, r, p, _ = linregress(*xy)
+            x, y = map(iter_from_maybe(xy_string), [1, 2])
+            m, b, r, p, _ = linregress(x, y)
             output = \
                 [ "{} =".format(remove_whitespace(command))
                 , "    slope     : {:8.9f}"
@@ -151,7 +156,9 @@ def lm(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
                 , "    p-value   : {:8.9f}"
                 ]
             return \
-                (POST_MESSAGE, block(newlines(output).format(m, b, r ** 2, p)))
+                ( POST_MESSAGE
+                , block(newlines(output).format(m, b, r ** 2, p))
+                )
         except:
             message = \
                 [ "Wrong way."

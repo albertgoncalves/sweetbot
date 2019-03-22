@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-from typing import Any, Callable, Iterator, List, Match, Optional, Union
+from typing import Any, Callable, Iterator, List, Match, Optional, TypeVar, \
+    Union
+
+A = TypeVar("A")
 
 
 def block(string: str) -> str:
@@ -14,6 +17,10 @@ def check_float(x: Union[int, float]) -> Union[int, float]:
 
 def extract(match: Optional[Match[str]], i: int) -> Optional[str]:
     return match.group(i) if match else None
+
+
+def from_maybe(xs: Iterator[Optional[A]]) -> List[A]:
+    return [x for x in xs if x is not None]
 
 
 def inject(container: str, pattern: Optional[str]) -> str:

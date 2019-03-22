@@ -3,7 +3,7 @@
 from datetime import datetime
 from statistics import stdev
 
-from scipy.stats import linregress  # type: ignore
+from scipy.stats import linregress
 
 from src.response import clock, eval_list_with, hanz_and_franz, lm, mean_, \
     median_, mode_, POST_MESSAGE, response, sum_, sd, UPLOAD_FILE
@@ -89,8 +89,8 @@ def test_sd():
 
 
 def test_lm():
-    x = [1, 2, 3]
-    y = [4, 5, 100]
+    x = [1.0, 2.0, 3.0]
+    y = [4.0, 5.0, 100.0]
     m, b, r, p, _ = linregress(x, y)
     command = "lm({}, {})".format(x, y)
     response = \
