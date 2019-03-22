@@ -134,7 +134,11 @@ def clock(now_here: datetime) -> Callable[[Any], Tuple[str, str]]:
 def iter_from_maybe( string: Optional[Match[str]]
                    ) -> Callable[[int], List[float]]:
     def f(i):
-        return from_maybe(string_to_floats(extract(string, i)))
+        return \
+            pipe( extract(string, i)
+                , string_to_floats
+                , from_maybe
+                )
     return f
 
 
