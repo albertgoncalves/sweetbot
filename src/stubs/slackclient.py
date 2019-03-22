@@ -9,8 +9,10 @@ class SlackClient(object):
 
     def api_call( self
                 , method: str
+                , channel: Optional[str] = None
+                , channels: Optional[str] = None
+                , text: Optional[str] = None
                 , file: Optional[BinaryIO] = None
-                , **kwargs: str
                 ) -> Dict[str, str]:
         ...
 

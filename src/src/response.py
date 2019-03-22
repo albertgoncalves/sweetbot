@@ -257,6 +257,7 @@ def response( command: Optional[str]
         for key in router.keys():
             if command.startswith(key):
                 return router[key](command)
-            elif ("hanz" in command) | ("franz" in command):
+            elif ("hanz" in command) or ("franz" in command):
                 return hanz_and_franz(command)
-    return (POST_MESSAGE, "Sorry, what is it you're trying to say?")
+    return \
+        (POST_MESSAGE, "I don't know what that means. See what Bernar says.")

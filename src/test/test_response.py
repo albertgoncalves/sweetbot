@@ -107,7 +107,9 @@ def test_lm():
 class TestResponse(object):
     def test_fallback(self):
         assert response("", None) == \
-            (POST_MESSAGE, "Sorry, what is it you're trying to say?")
+            ( POST_MESSAGE
+            , "I don't know what that means. See what Bernar says."
+            )
 
     def test_alive(self):
         assert response("alive", None) == \

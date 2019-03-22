@@ -37,9 +37,8 @@ def send( slack_client: SlackClient
                                     , channel=channel
                                     , text=payload
                                     )
-
     else:
-        raise ApiError("Malformed channel or command, closing connection.")
+        raise ApiError("Missing channel or command, closing connection.")
 
 
 def loop( slack_client: SlackClient
@@ -72,9 +71,9 @@ def death(bot_name: Optional[str], exception: str) -> str:
 
 def main() -> None:
     bot_name = None
+    slack_client = SlackClient(environ["SLACK_BOT_TOKEN"])
+    kwargs = {"with_team_state": False, "auto_reconnect": True}
     try:
-        slack_client = SlackClient(environ["SLACK_BOT_TOKEN"])
-        kwargs = {"with_team_state": False, "auto_reconnect": True}
         if slack_client.rtm_connect(**kwargs):
             bot_creds = \
                 slack_client.api_call("auth.test")

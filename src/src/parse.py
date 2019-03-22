@@ -10,7 +10,7 @@ MESSAGE = r"^<@(|[WU].+?)>(.*)"
 
 
 def valid_message(event: Dict[str, str]) -> bool:
-    return (event["type"] == "message") & ("subtype" not in event)
+    return (event["type"] == "message") and ("subtype" not in event)
 
 
 def split_text(event: Dict[str, str]) -> THREE_TUPLE:
