@@ -5,8 +5,8 @@ from statistics import stdev
 
 from scipy.stats import linregress  # type: ignore
 
-from src.response import clock, eval_list_with, lm, mean_, median_, mode_, \
-    POST_MESSAGE, response, sum_, sd
+from src.response import clock, eval_list_with, hanz_and_franz, lm, mean_, \
+    median_, mode_, POST_MESSAGE, response, sum_, sd, UPLOAD_FILE
 from src.utils import block, newlines, remove_whitespace
 
 
@@ -124,3 +124,11 @@ class TestClock(object):
         time = datetime(2019, 4, 1, 0, 0)
         response = block("here : 12:00:00 AM\nutc  : 04:00:00 AM")
         assert clock(time)(None) == (POST_MESSAGE, response)
+
+
+class TestHanzAndFranz(object):
+    def test_hanz(self):
+        assert hanz_and_franz("hanz") == (UPLOAD_FILE, "imgs/hf.png")
+
+    def test_franz(self):
+        assert hanz_and_franz("franz") == (UPLOAD_FILE, "imgs/hf.png")

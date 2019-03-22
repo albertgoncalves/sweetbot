@@ -199,6 +199,10 @@ def pets(_: Any) -> Tuple[str, str]:
     return (POST_MESSAGE, spaces(message))
 
 
+def hanz_and_franz(_: Any) -> Tuple[str, str]:
+    return (UPLOAD_FILE, "imgs/hf.png")
+
+
 def options(bot_name: Optional[str]) -> Callable[[Any], Tuple[str, str]]:
     def f(_):
         message = \
@@ -228,7 +232,7 @@ def response( command: Optional[str]
     if command:
         router = \
             { "help": options(bot_name)
-            , "options": options(bot_name)
+            , "option": options(bot_name)
             , "sum": sum_(bot_name)
             , "mean": mean_(bot_name)
             , "median": median_(bot_name)
@@ -245,4 +249,6 @@ def response( command: Optional[str]
         for key in router.keys():
             if command.startswith(key):
                 return router[key](command)
+            elif ("hanz" in command) | ("franz" in command):
+                return hanz_and_franz(command)
     return (POST_MESSAGE, "Sorry, what is it you're trying to say?")

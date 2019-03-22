@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from os import environ
+from os.path import exists
 from pprint import pprint
 from time import sleep
 from typing import Dict, Iterator, Optional, Tuple
@@ -8,7 +9,7 @@ from typing import Dict, Iterator, Optional, Tuple
 from slackclient import SlackClient
 
 from src.parse import parse
-from src.response import response
+from src.response import POST_MESSAGE, response, UPLOAD_FILE
 from src.utils import newlines
 
 
@@ -22,11 +23,21 @@ def send( slack_client: SlackClient
         , channel: Optional[str]
         ) -> Dict[str, str]:
     if command and channel:
-        request, text = response(command, bot_name)
+        request, payload = response(command, bot_name)
+        if request == UPLOAD_FILE:
+            if exists(payload):
+                with open(payload, "rb") as f:
+                    return slack_client.api_call( request
+                                                , channels=channel
+                                                , file=f
+                                                )
+            else:
+                request, payload = (POST_MESSAGE, "Hmm... what?")
         return slack_client.api_call( request
                                     , channel=channel
-                                    , text=text
+                                    , text=payload
                                     )
+
     else:
         raise ApiError("Malformed channel or command, closing connection.")
 
