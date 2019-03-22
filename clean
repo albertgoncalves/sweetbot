@@ -4,7 +4,7 @@ message () {
     echo "deleting $1"
 }
 
-for f in "__pycache__" ".pytest_cache" ".mypy_cache" ".lint_cache"; do
+for f in "__pycache__" ".pytest_cache" ".mypy_cache"; do
     if [ -d $f ]; then
         message "$f/"
         find . -name $f -type d -prune -exec rm -r {} \;

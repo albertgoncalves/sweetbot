@@ -11,7 +11,6 @@ with pkgs; mkShell {
             mypy
             flake8
         ]))
-        coreutils
     ];
     shellHook = ''
         . .alias

@@ -1,31 +1,6 @@
 #!/usr/bin/env bash
 
-check_time () {
-    if [ ! -e $1 ]; then
-        time=0
-    else
-        time=$(cat $1)
-    fi
-    echo $time
-}
-
-lint_if () {
-    for f in $(find . -type f -name "*.py"); do
-        if (( $1 < $(stat -c %Y $f) )); then
-            echo "linting $f"
-            lint $f
-        fi
-    done
-}
-
-main () {
-    set -e
-    timestamp=".lint_cache"
-    cd $WD
-    time=$(check_time $timestamp)
-    lint_if $time
-    echo $(date +%s) > $timestamp
-    pytest --maxfail=1 src/test/
-}
-
-main
+set -e
+cd $WD
+lint src/
+pytest --maxfail=1 src/test/
