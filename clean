@@ -1,15 +1,8 @@
 #!/usr/bin/env bash
 
-message () {
-    echo "deleting $1"
-}
-
 for f in "__pycache__" ".pytest_cache" ".mypy_cache"; do
     if [ -d $f ]; then
-        message "$f/"
+        echo "deleting $f"
         find . -name $f -type d -prune -exec rm -r {} \;
-    elif [ -f $f ]; then
-        message "$f"
-        rm $f
     fi
 done

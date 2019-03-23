@@ -2,5 +2,6 @@
 
 set -e
 cd $WD
+echo "linting src/"
 lint src/
 pytest --maxfail=1 src/test/
