@@ -13,13 +13,13 @@ Quick start
 ---
 ```
 $ nix-shell
-[nix-shell:~/sweetbot]$ ./test
-[nix-shell:~/sweetbot]$ ./main
+[nix-shell:path/to/sweetbot]$ ./test
+[nix-shell:path/to/sweetbot]$ ./main
 ```
 `main` will basically just kickstart `src/main.py`, though it will bring the needed env variables along for the ride. This will get you across the finish line as well.
 ```
 $ nix-shell
-[nix-shell:~/sweetbot]$ env $(cat .env | xargs) python src/main.py
+[nix-shell:path/to/sweetbot]$ env $(cat .env | xargs) python src/main.py
 ```
 
 ---
