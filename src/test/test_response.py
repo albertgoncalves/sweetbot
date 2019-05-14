@@ -5,8 +5,8 @@ from statistics import stdev
 
 from scipy.stats import linregress
 
-from src.response import clock, eval_list_with, hanz_and_franz, lm, mean_, \
-    median_, mode_, POST_MESSAGE, response, sum_, sd, UPLOAD_FILE
+from src.response import POST_MESSAGE, UPLOAD_FILE, clock, eval_list_with, \
+    hanz_and_franz, lm, mean_, median_, mode_, response, sum_, sd
 from src.utils import block, newlines, remove_whitespace
 
 

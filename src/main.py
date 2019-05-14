@@ -9,7 +9,7 @@ from typing import Dict, Iterator, Optional, Tuple
 from slackclient import SlackClient
 
 from src.parse import parse
-from src.response import POST_MESSAGE, response, UPLOAD_FILE
+from src.response import POST_MESSAGE, UPLOAD_FILE, response
 from src.utils import newlines
 
 

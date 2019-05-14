@@ -2,7 +2,7 @@
 !README.md
 !imgs/
 !.gitignore
-!.alias
+!.shellhook
 !test
 !main
 !clean
