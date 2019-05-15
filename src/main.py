@@ -17,34 +17,38 @@ class ApiError(Exception):
     pass
 
 
-def send( slack_client: SlackClient
-        , bot_name: Optional[str]
-        , command: Optional[str]
-        , channel: Optional[str]
-        ) -> Dict[str, str]:
+def send(
+    slack_client: SlackClient,
+    bot_name: Optional[str],
+    command: Optional[str],
+    channel: Optional[str],
+) -> Dict[str, str]:
     if command and channel:
         request, payload = response(command, bot_name)
         if request == UPLOAD_FILE:
             if exists(payload):
                 with open(payload, "rb") as f:
-                    return slack_client.api_call( request
-                                                , channels=channel
-                                                , file=f
-                                                )
+                    return slack_client.api_call(
+                        request,
+                        channels=channel,
+                        file=f,
+                    )
             else:
                 request, payload = (POST_MESSAGE, "Hmm... what?")
-        return slack_client.api_call( request
-                                    , channel=channel
-                                    , text=payload
-                                    )
+        return slack_client.api_call(
+            request,
+            channel=channel,
+            text=payload,
+        )
     else:
         raise ApiError("Missing channel or command, closing connection.")
 
 
-def loop( slack_client: SlackClient
-        , bot_name: Optional[str]
-        , commands: Iterator[Tuple[Optional[str], Optional[str]]]
-        ) -> None:
+def loop(
+    slack_client: SlackClient,
+    bot_name: Optional[str],
+    commands: Iterator[Tuple[Optional[str], Optional[str]]],
+) -> None:
     for command in commands:
         response = send(slack_client, bot_name, *command)
         pprint(response)
@@ -58,12 +62,12 @@ def loop( slack_client: SlackClient
 
 
 def death(bot_name: Optional[str], exception: str) -> str:
-    message = \
-        [ exception
-        , "\nNow cracks a noble heart."
-        , "Good night {}:"
-        , "And flights of angels sing thee to thy rest!"
-        ]
+    message = [
+        exception,
+        "\nNow cracks a noble heart.",
+        "Good night {}:",
+        "And flights of angels sing thee to thy rest!",
+    ]
     if not bot_name:
         bot_name = "sweet prince"
     return newlines(message).format(bot_name)
@@ -81,10 +85,11 @@ def main() -> None:
             bot_id = bot_creds["user_id"]
             print("Good to see you again, {}.\n".format(bot_name))
             while True:
-                loop( slack_client
-                    , bot_name
-                    , parse(bot_id, slack_client.rtm_read())
-                    )
+                loop(
+                    slack_client,
+                    bot_name,
+                    parse(bot_id, slack_client.rtm_read()),
+                )
                 sleep(0.75)
         else:
             print("Hmm, unable to connect.")

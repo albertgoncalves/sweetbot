@@ -4,21 +4,21 @@ from src.parse import at_bot, messages, parse, remove_user_id, split_text, \
     valid_message
 
 BOT_ID = "UXXXXXXXX"
-EVENT = \
-    { "text": "<@{}> foo bar".format(BOT_ID)
-    , "channel": "XXXXXXXXX"
-    , "type": "message"
-    }
-FAIL_TEXT = \
-    { "text": "foo bar"
-    , "type": EVENT["type"]
-    , "channel": EVENT["channel"]
-    }
-FAIL_TYPE = \
-    { "text": EVENT["text"]
-    , "type": "baz"
-    , "channel": EVENT["channel"]
-    }
+EVENT = {
+    "text": "<@{}> foo bar".format(BOT_ID),
+    "channel": "XXXXXXXXX",
+    "type": "message",
+}
+FAIL_TEXT = {
+    "text": "foo bar",
+    "type": EVENT["type"],
+    "channel": EVENT["channel"],
+}
+FAIL_TYPE = {
+    "text": EVENT["text"],
+    "type": "baz",
+    "channel": EVENT["channel"],
+}
 EVENTS = [EVENT, FAIL_TEXT, FAIL_TYPE]
 
 

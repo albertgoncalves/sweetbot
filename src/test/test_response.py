@@ -16,12 +16,12 @@ class TestEvalListWith(object):
 
     pattern = "head"
     command = "{}(1, 2, 3)".format(pattern)
-    kwargs = \
-        { "f": head
-        , "pattern": pattern
-        , "message": ["failed"]
-        , "bot_name": None
-        }
+    kwargs = {
+        "f": head,
+        "pattern": pattern,
+        "message": ["failed"],
+        "bot_name": None,
+    }
 
     def test_eval(self):
         result = eval_list_with(command=self.command, **self.kwargs)
@@ -50,10 +50,10 @@ def test_mean():
 class TestMedian(object):
     def test_exact(self):
         command = "median(-11, -10.001, 1000)"
-        assert median_(None)(command) == \
-            ( POST_MESSAGE
-            , block("{} = -10.001".format(remove_whitespace(command)))
-            )
+        assert median_(None)(command) == (
+            POST_MESSAGE,
+            block("{} = -10.001".format(remove_whitespace(command))),
+        )
 
     def test_split(self):
         command = "median(-10.001, -10, 10, 1000)"
@@ -64,16 +64,16 @@ class TestMedian(object):
 class TestMode(object):
     def test_no_exception(self):
         command = "mode(1.01, 1.01, 1.01, 0, 0)"
-        assert mode_(None)(command) == \
-            ( POST_MESSAGE
-            , block("{} = 1.01".format(remove_whitespace(command)))
-            )
+        assert mode_(None)(command) == (
+            POST_MESSAGE,
+            block("{} = 1.01".format(remove_whitespace(command))),
+        )
 
     def test_exception(self):
-        message = \
-            [ "There may be *no* mode."
-            , "Try `{} mode(1, 1, 1, 0, 0)`".format(None)
-            ]
+        message = [
+            "There may be *no* mode.",
+            "Try `{} mode(1, 1, 1, 0, 0)`".format(None),
+        ]
         assert mode_(None)("mode(1.01, 1.01, 0, 0)") == \
             (POST_MESSAGE, newlines(message))
 
@@ -82,10 +82,10 @@ def test_sd():
     a, b, c = -1, 0, 1.01
     x = stdev([a, b, c])
     command = "sd({}, {}, {})".format(a, b, c)
-    assert sd(None)(command) == \
-        ( POST_MESSAGE
-        , block("{} = {}".format(remove_whitespace(command), round(x, 10)))
-        )
+    assert sd(None)(command) == (
+        POST_MESSAGE,
+        block("{} = {}".format(remove_whitespace(command), round(x, 10))),
+    )
 
 
 def test_lm():
@@ -93,23 +93,23 @@ def test_lm():
     y = [4.0, 5.0, 100.0]
     m, b, r, p, _ = linregress(x, y)
     command = "lm({}, {})".format(x, y)
-    response = \
-        [ "{} =".format(remove_whitespace(command))
-        , "    slope     : {:8.9f}"
-        , "    intercept : {:8.9f}"
-        , "    r-squared : {:8.9f}"
-        , "    p-value   : {:8.9f}"
-        ]
+    response = [
+        "{} =".format(remove_whitespace(command)),
+        "    slope     : {:8.9f}",
+        "    intercept : {:8.9f}",
+        "    r-squared : {:8.9f}",
+        "    p-value   : {:8.9f}",
+    ]
     assert lm(None)(command) == \
         (POST_MESSAGE, block(newlines(response).format(m, b, r ** 2, p)))
 
 
 class TestResponse(object):
     def test_fallback(self):
-        assert response("", None) == \
-            ( POST_MESSAGE
-            , "I don't know what that means. See what Bernar says."
-            )
+        assert response("", None) == (
+            POST_MESSAGE,
+            "I don't know what that means. See what Bernar says.",
+        )
 
     def test_alive(self):
         assert response("alive", None) == \
