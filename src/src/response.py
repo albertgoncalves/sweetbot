@@ -201,15 +201,6 @@ def truth(_: Any) -> Tuple[str, str]:
     return (POST_MESSAGE, spaces(message))
 
 
-def pets(_: Any) -> Tuple[str, str]:
-    message = [
-        "Do I have pets? Sadly, not at the moment. I don't really have space",
-        "for them in my apartment, but I one day I'd like to have an",
-        "*electric sheep*.",
-    ]
-    return (POST_MESSAGE, spaces(message))
-
-
 def hanz_and_franz(_: Any) -> Tuple[str, str]:
     return (UPLOAD_FILE, "imgs/hf.png")
 
@@ -229,7 +220,6 @@ def options(bot_name: Optional[str]) -> Callable[[Any], Tuple[str, str]]:
             " `{} alive`",
             " `{} dreams`",
             " `{} truth`",
-            " `{} pets`",
             " `{} help`",
             " `{} options`",
         ]
@@ -256,7 +246,6 @@ def response(
             "alive": alive,
             "dreams": dreams,
             "truth": truth,
-            "pets": pets,
         }
         for key in router.keys():
             if command.startswith(key):
