@@ -79,7 +79,9 @@ class TestMode(object):
 
 
 def test_sd():
-    a, b, c = -1, 0, 1.01
+    a = -1
+    b = 0
+    c = 1.01
     x = stdev([a, b, c])
     command = "sd({}, {}, {})".format(a, b, c)
     assert sd(None)(command) == (
@@ -91,7 +93,7 @@ def test_sd():
 def test_lm():
     x = [1.0, 2.0, 3.0]
     y = [4.0, 5.0, 100.0]
-    m, b, r, p, _ = linregress(x, y)
+    (m, b, r, p, _) = linregress(x, y)
     command = "lm({}, {})".format(x, y)
     response = [
         "{} =".format(remove_whitespace(command)),

@@ -24,7 +24,7 @@ def send(
     channel: Optional[str],
 ) -> Dict[str, str]:
     if command and channel:
-        request, payload = response(command, bot_name)
+        (request, payload) = response(command, bot_name)
         if request == UPLOAD_FILE:
             if exists(payload):
                 with open(payload, "rb") as f:
@@ -34,12 +34,8 @@ def send(
                         file=f,
                     )
             else:
-                request, payload = (POST_MESSAGE, "Hmm... what?")
-        return slack_client.api_call(
-            request,
-            channel=channel,
-            text=payload,
-        )
+                (request, payload) = (POST_MESSAGE, "Hmm... what?")
+        return slack_client.api_call(request, channel=channel, text=payload)
     else:
         raise ApiError("Missing channel or command, closing connection.")
 
@@ -56,8 +52,7 @@ def loop(
         if ok:
             sleep(0.15)
         else:
-            message = \
-                "API response returned {}, closing connection.".format(ok)
+            message = "API responded with {}, closing connection.".format(ok)
             raise ApiError(message)
 
 
@@ -79,8 +74,7 @@ def main() -> None:
     kwargs = {"with_team_state": False, "auto_reconnect": True}
     try:
         if slack_client.rtm_connect(**kwargs):
-            bot_creds = \
-                slack_client.api_call("auth.test")
+            bot_creds = slack_client.api_call("auth.test")
             bot_name = "@{}".format(bot_creds["user"])
             bot_id = bot_creds["user_id"]
             print("Good to see you again, {}.\n".format(bot_name))

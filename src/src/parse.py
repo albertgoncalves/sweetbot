@@ -25,13 +25,13 @@ def split_text(event: Dict[str, str]) -> THREE_TUPLE:
 
 def at_bot(bot_id: str) -> Callable[[THREE_TUPLE], bool]:
     def f(event):
-        user_id, _, _ = event
+        (user_id, _, _) = event
         return user_id == bot_id
     return f
 
 
 def remove_user_id(event: THREE_TUPLE) -> TWO_TUPLE:
-    _, message, channel = event
+    (_, message, channel) = event
     return (message, channel)
 
 

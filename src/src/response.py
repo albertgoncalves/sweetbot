@@ -134,11 +134,7 @@ def iter_from_maybe(
     string: Optional[Match[str]]
 ) -> Callable[[int], List[float]]:
     def f(i):
-        return pipe(
-            extract(string, i),
-            string_to_floats,
-            from_maybe,
-        )
+        return pipe(extract(string, i), string_to_floats, from_maybe)
     return f
 
 
@@ -150,8 +146,8 @@ def lm(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
                 inject(LIST, NUMERIC),
             )
             xy_string = search(pattern, command)
-            x, y = map(iter_from_maybe(xy_string), [1, 2])
-            m, b, r, p, _ = linregress(x, y)
+            (x, y) = map(iter_from_maybe(xy_string), [1, 2])
+            (m, b, r, p, _) = linregress(x, y)
             output = [
                 "{} =".format(remove_whitespace(command)),
                 "    slope     : {:8.9f}",
