@@ -52,7 +52,7 @@ def loop(
         if ok:
             sleep(0.15)
         else:
-            message = "API responded with {}, closing connection.".format(ok)
+            message = "\nAPI responded with {}, closing connection.".format(ok)
             raise ApiError(message)
 
 
