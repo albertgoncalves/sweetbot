@@ -3,13 +3,14 @@ with pkgs; mkShell {
     name = "Python";
     buildInputs = [
         (python37.withPackages(ps: with ps; [
+            autopep8
+            flake8
+            mypy
+            numpy
+            pytest
+            pytz
             slackclient
             statsmodels
-            numpy
-            pytz
-            pytest
-            mypy
-            flake8
         ]))
     ];
     shellHook = ''

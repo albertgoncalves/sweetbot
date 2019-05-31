@@ -38,7 +38,7 @@ def eval_list_with(
             str,
         )
         return block("{} = {}".format(remove_whitespace(command), result))
-    except:
+    except BaseException:
         return newlines(message).format(bot_name)
 
 
@@ -159,7 +159,7 @@ def lm(bot_name: Optional[str]) -> Callable[[str], Tuple[str, str]]:
                 POST_MESSAGE,
                 block(newlines(output).format(m, b, r ** 2, p)),
             )
-        except:
+        except BaseException:
             message = [
                 "Wrong way.",
                 "Try `{} lm([1, 2, 3], [3, 2, 1])`",
